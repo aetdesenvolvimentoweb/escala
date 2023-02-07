@@ -1,5 +1,5 @@
-const DailyService = () => {
-  return <div>Serviço Diário</div>;
+const Users = () => {
+  return <div>Usuários</div>;
 };
 
-export default DailyService;
+export default Users;
