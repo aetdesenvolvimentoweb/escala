@@ -25,7 +25,7 @@ const MainLayout = ({ children, title }: IMainLayoutProps) => {
           <h1 className="p-2 mb-2 text-sm font-bold text-gray-800 rounded-md bg-gray-50">
             {pageTitle}
           </h1>
-          <div className="p-2 text-xs text-gray-800 rounded-md bg-gray-50">
+          <div className="p-2 text-sm text-gray-800 rounded-md bg-gray-50">
             {children}
           </div>
         </main>
