@@ -68,3 +68,15 @@ export const updateMilitary = async (id: string, data: IMilitaryCreateDTO) => {
 
   await disconnectDB();
 };
+
+export const deleteMilitary = async (id: string): Promise<void> => {
+  await connectDB();
+
+  await prisma.military.delete({
+    where: {
+      id,
+    },
+  });
+
+  await disconnectDB();
+};

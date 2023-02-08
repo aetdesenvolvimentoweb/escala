@@ -25,6 +25,7 @@ const Efetivo = () => {
   const [page, setPage] = useState<number>(1);
   const [adding, setAdding] = useState<boolean>(false);
   const [editing, setEditing] = useState<boolean>(false);
+  const [deleting, setDeleting] = useState<boolean>(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -39,12 +40,14 @@ const Efetivo = () => {
   }, []);
 
   const handleCancel = () => {
+    setId("");
     setGraduation("");
     setRg("");
     setName("");
     setPage(1);
     setAdding(false);
     setEditing(false);
+    setDeleting(false);
   };
 
   const handleEdit = (military: IMilitaryDTO) => {
@@ -55,11 +58,30 @@ const Efetivo = () => {
     setName(military.name);
   };
 
+  const handleDeleting = (id: string) => {
+    setId(id);
+    setDeleting(true);
+  };
+
   const handleChangePage = (event: ChangeEvent<HTMLInputElement>) => {
     if (isNaN(parseInt(event.target.value))) {
       setPage(1);
     } else {
       setPage(parseInt(event.target.value));
+    }
+  };
+
+  const handleDeleteMilitary = async () => {
+    const response = await fetch(`/api/military/${id}/delete`, {
+      method: "DELETE",
+    }).then(async (res) => await res.json());
+
+    if (response.success) {
+      toast.success("Militar deletado com sucesso.");
+      setMilitary(military.filter((m) => m.id !== id));
+      handleCancel();
+    } else {
+      toast.error(response.error);
     }
   };
 
@@ -127,7 +149,7 @@ const Efetivo = () => {
       <div className="mb-2">
         <div
           className={`${
-            adding ? "hidden" : "flex"
+            adding || editing || deleting ? "hidden" : "flex"
           } items-center justify-between`}
         >
           <button
@@ -151,6 +173,28 @@ const Efetivo = () => {
               </button>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div
+        className={`${deleting ? "flex" : "hidden"} flex-col items-center mb-2`}
+      >
+        <div className="mb-1">
+          <strong>Deseja realmente deletar o militar?</strong>
+        </div>
+        <div>
+          <button
+            className="px-4 py-1 mr-1 font-bold text-white bg-green-600 rounded-md"
+            onClick={handleCancel}
+          >
+            Não
+          </button>
+          <button
+            className="px-4 py-1 ml-1 font-bold text-white bg-red-600 rounded-md"
+            onClick={handleDeleteMilitary}
+          >
+            Sim
+          </button>
         </div>
       </div>
 
@@ -248,7 +292,7 @@ const Efetivo = () => {
       <div
         id="table"
         className={`${
-          adding || editing ? "hidden" : "flex"
+          adding || editing || deleting ? "hidden" : "flex"
         } flex-col mb-2 rounded-t-md`}
       >
         <div
@@ -279,7 +323,7 @@ const Efetivo = () => {
                   <button className="pr-1" onClick={() => handleEdit(m)}>
                     <FiEdit2 size={20} />
                   </button>
-                  <button>
+                  <button onClick={() => handleDeleting(m.id)}>
                     <FiTrash2 size={20} />
                   </button>
                 </div>
@@ -298,7 +342,7 @@ const Efetivo = () => {
       <div
         id="paginacao"
         className={`${
-          adding || editing ? "hidden" : "flex"
+          adding || editing || deleting ? "hidden" : "flex"
         } items-center justify-center`}
       >
         <button>
