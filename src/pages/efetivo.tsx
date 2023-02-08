@@ -1,23 +1,58 @@
 import MainLayout from "@/components/layout/main";
-import { ChangeEvent, FormEvent, useState } from "react";
-import { FiXCircle } from "react-icons/fi";
+import { IMilitaryDTO } from "@/dtos/IMilitaryDTO";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import {
+  FiChevronLeft,
+  FiChevronRight,
+  FiChevronsLeft,
+  FiChevronsRight,
+  FiEdit2,
+  FiTrash2,
+  FiXCircle,
+} from "react-icons/fi";
 import { toast } from "react-toastify";
 
 const Efetivo = () => {
+  const [id, setId] = useState<string>("");
   const [graduation, setGraduation] = useState<string>("");
   const [rg, setRg] = useState<string>("");
   const [name, setName] = useState<string>("");
+  const [military, setMilitary] = useState<IMilitaryDTO[]>(
+    [] as IMilitaryDTO[]
+  );
 
   const [searched, setSearched] = useState<string>("");
   const [page, setPage] = useState<number>(1);
-  const [edit, setEdit] = useState<boolean>(false);
+  const [adding, setAdding] = useState<boolean>(false);
+  const [editing, setEditing] = useState<boolean>(false);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const data = await fetch("/api/military/listAll", { method: "GET" }).then(
+        async (res) => res.json()
+      );
+      console.log(data);
+      setMilitary(data.military);
+    };
+
+    loadData();
+  }, []);
 
   const handleCancel = () => {
     setGraduation("");
     setRg("");
     setName("");
     setPage(1);
-    setEdit(false);
+    setAdding(false);
+    setEditing(false);
+  };
+
+  const handleEdit = (military: IMilitaryDTO) => {
+    setEditing(true);
+    setId(military.id);
+    setGraduation(military.graduation);
+    setRg(military.rg.toString());
+    setName(military.name);
   };
 
   const handleChangePage = (event: ChangeEvent<HTMLInputElement>) => {
@@ -46,15 +81,44 @@ const Efetivo = () => {
       document.getElementById("name")?.focus();
     }
 
-    const response = await fetch("/api/military/create", {
-      method: "POST",
-      body: JSON.stringify({ graduation, rg: parseInt(rg), name }),
-    }).then(async (res) => await res.json());
+    if (editing && !id) {
+      toast.error("Identificador de usuário não encontrado.");
+    }
 
-    if (response.error) {
-      toast.error(response.error);
-    } else {
-      toast.success("Militar cadastrado com sucesso.");
+    if (adding) {
+      const response = await fetch("/api/military/create", {
+        method: "POST",
+        body: JSON.stringify({ graduation, rg: parseInt(rg), name }),
+      }).then(async (res) => await res.json());
+
+      if (response.error) {
+        toast.error(response.error);
+      } else {
+        toast.success("Militar cadastrado com sucesso.");
+        setMilitary([...military, response.military]);
+        handleCancel();
+      }
+    }
+
+    if (editing) {
+      const response = await fetch(`/api/military/${id}/update`, {
+        method: "PUT",
+        body: JSON.stringify({ graduation, rg: parseInt(rg), name }),
+      }).then(async (res) => await res.json());
+
+      if (response.error) {
+        toast.error(response.error);
+      } else {
+        toast.success("Militar atualizado com sucesso.");
+        const militaryUpdated = military.map((m) => {
+          if (m.id === id) {
+            return { id, graduation, rg: parseInt(rg), name };
+          }
+          return m;
+        });
+        setMilitary(militaryUpdated);
+        handleCancel();
+      }
     }
   };
 
@@ -62,11 +126,13 @@ const Efetivo = () => {
     <MainLayout title="Efetivo">
       <div className="mb-2">
         <div
-          className={`${edit ? "hidden" : "flex"} items-center justify-between`}
+          className={`${
+            adding ? "hidden" : "flex"
+          } items-center justify-between`}
         >
           <button
             className="px-4 py-1 font-bold text-white bg-green-600 rounded-md"
-            onClick={() => setEdit(true)}
+            onClick={() => setAdding(true)}
           >
             Novo
           </button>
@@ -90,7 +156,7 @@ const Efetivo = () => {
 
       <div
         className={`${
-          edit ? "flex" : "hidden"
+          adding || editing ? "flex" : "hidden"
         } items-center justify-between mb-2`}
       >
         <form
@@ -103,7 +169,7 @@ const Efetivo = () => {
             </div>
             <div className="flex-1">
               <select
-                className="w-full p-1 border border-gray-800 rounded-md focus:outline-none"
+                className="w-full p-1 bg-white border border-gray-800 rounded-md focus:outline-none"
                 id="graduation"
                 onChange={(event: ChangeEvent<HTMLSelectElement>) =>
                   setGraduation(event.target.value)
@@ -181,44 +247,66 @@ const Efetivo = () => {
 
       <div
         id="table"
-        className={`${edit ? "hidden" : "flex"} flex-col mb-2 rounded-t-md`}
+        className={`${
+          adding || editing ? "hidden" : "flex"
+        } flex-col mb-2 rounded-t-md`}
       >
         <div
           id="cabecalho"
           className="bg-gray-400 border border-gray-800 rounded-t-md"
         >
           <div id="linha" className="flex font-bold uppercase">
-            <div className="w-2/3 px-2 py-1 border-r border-r-gray-800">
+            <div className="w-2/3 px-2 py-1 text-center border-r border-r-gray-800">
               Militar
             </div>
-            <div className="w-1/3 px-2 py-1">ações</div>
+            <div className="w-1/3 px-2 py-1"></div>
           </div>
         </div>
         <div
           id="corpo"
           className="border-l border-r border-gray-800 rounded-b-md"
         >
-          <div className="flex border-b border-gray-800 last:rounded-b-md">
-            <div className="w-2/3 px-2 py-1 border-r border-r-gray-800">
-              Maj 02.622 Dutra
+          {military ? (
+            military.map((m) => (
+              <div
+                key={m.id}
+                className="flex border-b border-gray-800 last:rounded-b-md"
+              >
+                <div className="w-2/3 px-2 py-1 border-r border-r-gray-800">
+                  {m.graduation} {m.rg} {m.name}
+                </div>
+                <div className="flex items-center justify-center w-1/3 px-2 py-1">
+                  <button className="pr-1" onClick={() => handleEdit(m)}>
+                    <FiEdit2 size={20} />
+                  </button>
+                  <button>
+                    <FiTrash2 size={20} />
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="flex border-b border-gray-800 last:rounded-b-md">
+              <div className="w-full px-2 py-1 text-center">
+                Nenhum resultado foi encontrado
+              </div>
             </div>
-            <div className="w-1/3 px-2 py-1">ações</div>
-          </div>
-          <div className="flex border-b border-gray-800 last:rounded-b-md">
-            <div className="w-2/3 px-2 py-1 border-r border-r-gray-800">
-              Sd 03.917 Justo
-            </div>
-            <div className="w-1/3 px-2 py-1">ações</div>
-          </div>
+          )}
         </div>
       </div>
 
       <div
         id="paginacao"
-        className={`${edit ? "hidden" : "flex"} items-center justify-center`}
+        className={`${
+          adding || editing ? "hidden" : "flex"
+        } items-center justify-center`}
       >
-        <button>{"<<"}</button>
-        <button className="px-2">{"<"}</button>
+        <button>
+          <FiChevronsLeft size={20} />
+        </button>
+        <button className="px-2">
+          <FiChevronLeft size={20} />
+        </button>
         <input
           className="w-10 text-center border border-gray-800 rounded-md focus:outline-none"
           type="text"
@@ -227,8 +315,12 @@ const Efetivo = () => {
         />
         <span className="pl-2">de</span>
         <span className="pl-2">3</span>
-        <button className="pl-2">{">"}</button>
-        <button className="pl-2">{">>"}</button>
+        <button className="pl-2">
+          <FiChevronRight size={20} />
+        </button>
+        <button className="pl-2">
+          <FiChevronsRight size={20} />
+        </button>
       </div>
     </MainLayout>
   );

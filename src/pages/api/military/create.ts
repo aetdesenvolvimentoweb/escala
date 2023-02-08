@@ -1,3 +1,4 @@
+import { IMilitaryDTO } from "@/dtos/IMilitaryDTO";
 import {
   createMilitary,
   listMilitaryByRG,
@@ -6,6 +7,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 interface IResponseData {
   success: boolean;
+  military?: IMilitaryDTO;
   error?: string;
 }
 
@@ -34,7 +36,7 @@ const handler = async (
           throw new Error("Erro ao cadastrar militar.");
         }
 
-        res.status(201).json({ success: true });
+        res.status(201).json({ success: true, military });
       } catch (err: any) {
         res
           .status(400)

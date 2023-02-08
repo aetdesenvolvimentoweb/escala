@@ -1,3 +1,4 @@
+import { updateMilitary } from "@/repositories/militaryRepository";
 import { NextApiRequest, NextApiResponse } from "next";
 
 interface IResponseData {
@@ -5,11 +6,31 @@ interface IResponseData {
   error?: string;
 }
 
-const handler = (req: NextApiRequest, res: NextApiResponse<IResponseData>) => {
+const handler = async (
+  req: NextApiRequest,
+  res: NextApiResponse<IResponseData>
+) => {
   switch (req.method) {
-    case "POST":
+    case "PUT":
       try {
-        res.status(201).json({ success: true });
+        const { graduation, rg, name } = JSON.parse(req.body);
+        const id = req.query.id as string;
+
+        if (!id) {
+          throw new Error("Identificador do usuário não encontrado.");
+        }
+
+        if (!graduation || !rg || !name) {
+          throw new Error("Campos obrigatórios não foram preenchidos.");
+        }
+
+        await updateMilitary(id, {
+          graduation,
+          rg: parseInt(rg),
+          name,
+        });
+
+        res.status(200).json({ success: true });
       } catch (err: any) {
         res
           .status(400)
