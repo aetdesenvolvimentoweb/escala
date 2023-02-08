@@ -1,18 +1,19 @@
 import { IMilitaryCreateDTO, IMilitaryDTO } from "@/dtos/IMilitaryDTO";
 import prisma from "@/lib/prismaDB";
 import { connectDB, disconnectDB } from "@/utils/connectionDB";
-import { omitFieldsOfUsers } from "@/utils/omitFields";
 
 export const createMilitary = async (
   data: IMilitaryCreateDTO
-): Promise<void> => {
+): Promise<IMilitaryDTO> => {
   await connectDB();
 
-  await prisma.military.create({
+  const military = await prisma.military.create({
     data,
   });
 
   await disconnectDB();
+
+  return military;
 };
 
 export const listMilitaryById = async (
@@ -31,10 +32,26 @@ export const listMilitaryById = async (
   return military;
 };
 
+export const listMilitaryByRG = async (
+  rg: number
+): Promise<IMilitaryDTO | null> => {
+  await connectDB();
+
+  const military = await prisma.military.findUnique({
+    where: {
+      rg,
+    },
+  });
+
+  await disconnectDB();
+
+  return military;
+};
+
 export const listAllMilitary = async (): Promise<IMilitaryDTO[]> => {
   await connectDB();
 
-  const military = await prisma.user.findMany();
+  const military = await prisma.military.findMany();
 
   return military;
 };

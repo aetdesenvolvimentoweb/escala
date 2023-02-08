@@ -1,11 +1,14 @@
 import MainLayout from "@/components/layout/main";
 import { ChangeEvent, FormEvent, useState } from "react";
+import { FiXCircle } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 const Efetivo = () => {
   const [graduation, setGraduation] = useState<string>("");
   const [rg, setRg] = useState<string>("");
   const [name, setName] = useState<string>("");
 
+  const [searched, setSearched] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [edit, setEdit] = useState<boolean>(false);
 
@@ -25,8 +28,34 @@ const Efetivo = () => {
     }
   };
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+
+    if (!graduation) {
+      toast.error("Campo Posto/Graduação precisa ser preenchido.");
+      document.getElementById("graduation")?.focus();
+    }
+
+    if (!rg) {
+      toast.error("Campo RG precisa ser preenchido.");
+      document.getElementById("rg")?.focus();
+    }
+
+    if (!name) {
+      toast.error("Campo Nome de Guerra precisa ser preenchido.");
+      document.getElementById("name")?.focus();
+    }
+
+    const response = await fetch("/api/military/create", {
+      method: "POST",
+      body: JSON.stringify({ graduation, rg: parseInt(rg), name }),
+    }).then(async (res) => await res.json());
+
+    if (response.error) {
+      toast.error(response.error);
+    } else {
+      toast.success("Militar cadastrado com sucesso.");
+    }
   };
 
   return (
@@ -42,8 +71,19 @@ const Efetivo = () => {
             Novo
           </button>
           <div className="flex items-center p-1 border border-gray-800 rounded-md">
-            <input className="px-2 focus:outline-none" type="text" />
-            <button>S</button>
+            <input
+              className="w-40 px-2 focus:outline-none"
+              type="text"
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                setSearched(event.target.value)
+              }
+              value={searched}
+            />
+            <div className={`${searched ? "visible" : "invisible"} flex`}>
+              <button className="text-red-600" onClick={() => setSearched("")}>
+                <FiXCircle size={20} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -81,9 +121,9 @@ const Efetivo = () => {
                 <option value="Cad">Cad</option>
                 <option value="CHOA">CHOA</option>
                 <option value="ST">ST</option>
-                <option value="1º">1º Sgt</option>
-                <option value="2º">2º Sgt</option>
-                <option value="3º">3º Sgt</option>
+                <option value="1º Sgt">1º Sgt</option>
+                <option value="2º Sgt">2º Sgt</option>
+                <option value="3º Sgt">3º Sgt</option>
                 <option value="Cb">Cb</option>
                 <option value="Sd">Sd</option>
               </select>
