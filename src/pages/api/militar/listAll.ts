@@ -1,15 +1,23 @@
+import { IMilitaryDTO } from "@/dtos/IMilitaryDTO";
+import { listAllMilitary } from "@/repositories/militaryRepository";
 import { NextApiRequest, NextApiResponse } from "next";
 
 interface IResponseData {
   success: boolean;
+  military?: IMilitaryDTO[];
   error?: string;
 }
 
-const handler = (req: NextApiRequest, res: NextApiResponse<IResponseData>) => {
+const handler = async (
+  req: NextApiRequest,
+  res: NextApiResponse<IResponseData>
+) => {
   switch (req.method) {
-    case "POST":
+    case "GET":
       try {
-        res.status(201).json({ success: true });
+        const military = await listAllMilitary();
+
+        res.status(201).json({ success: true, military });
       } catch (err: any) {
         res
           .status(400)

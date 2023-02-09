@@ -1,6 +1,5 @@
-import Loading from "@/components/layout/loading";
 import MainLayout from "@/components/layout/main";
-import { IMilitarDTO } from "@/dtos/IMilitarDTO";
+import { IViaturaDTO } from "@/dtos/IViaturaDTO";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import {
   FiChevronLeft,
@@ -13,30 +12,24 @@ import {
 } from "react-icons/fi";
 import { toast } from "react-toastify";
 
-const Efetivo = () => {
+const Viaturas = () => {
   const [id, setId] = useState<string>("");
-  const [graduation, setGraduation] = useState<string>("");
-  const [rg, setRg] = useState<string>("");
   const [name, setName] = useState<string>("");
-  const [military, setMilitary] = useState<IMilitarDTO[]>([] as IMilitarDTO[]);
+  const [viaturas, setViaturas] = useState<IViaturaDTO[]>([] as IViaturaDTO[]);
 
   const [searched, setSearched] = useState<string>("");
   const [page, setPage] = useState<number>(1);
-  const [loading, setLoading] = useState<boolean>(false);
   const [adding, setAdding] = useState<boolean>(false);
   const [editing, setEditing] = useState<boolean>(false);
   const [deleting, setDeleting] = useState<boolean>(false);
 
   useEffect(() => {
     const loadData = async () => {
-      setLoading(true);
-
-      const data = await fetch("/api/militar/listAll", { method: "GET" }).then(
+      const data = await fetch("/api/viaturas/listAll", { method: "GET" }).then(
         async (res) => res.json()
       );
-
-      setLoading(false);
-      setMilitary(data.military);
+      console.log(data);
+      setViaturas(data.viaturas);
     };
 
     loadData();
@@ -44,8 +37,6 @@ const Efetivo = () => {
 
   const handleCancel = () => {
     setId("");
-    setGraduation("");
-    setRg("");
     setName("");
     setPage(1);
     setAdding(false);
@@ -53,12 +44,10 @@ const Efetivo = () => {
     setDeleting(false);
   };
 
-  const handleEdit = (military: IMilitarDTO) => {
+  const handleEdit = (viatura: IViaturaDTO) => {
     setEditing(true);
-    setId(military.id);
-    setGraduation(military.graduation);
-    setRg(military.rg.toString());
-    setName(military.name);
+    setId(viatura.id);
+    setName(viatura.name);
   };
 
   const handleDeleting = (id: string) => {
@@ -74,18 +63,14 @@ const Efetivo = () => {
     }
   };
 
-  const handleDeleteMilitar = async () => {
-    setLoading(true);
-
-    const response = await fetch(`/api/militar/${id}/delete`, {
+  const handleDeleteViatura = async () => {
+    const response = await fetch(`/api/viaturas/${id}/delete`, {
       method: "DELETE",
     }).then(async (res) => await res.json());
 
-    setLoading(false);
-
     if (response.success) {
-      toast.success("Militar deletado com sucesso.");
-      setMilitary(military.filter((m) => m.id !== id));
+      toast.success("Viatura deletada com sucesso.");
+      setViaturas(viaturas.filter((v) => v.id !== id));
       handleCancel();
     } else {
       toast.error(response.error);
@@ -95,70 +80,54 @@ const Efetivo = () => {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
-    if (!graduation) {
-      toast.error("Campo Posto/Graduação precisa ser preenchido.");
-      document.getElementById("graduation")?.focus();
-    }
-
-    if (!rg) {
-      toast.error("Campo RG precisa ser preenchido.");
-      document.getElementById("rg")?.focus();
-    }
-
     if (!name) {
-      toast.error("Campo Nome de Guerra precisa ser preenchido.");
+      toast.error("Campo Nome precisa ser preenchido.");
       document.getElementById("name")?.focus();
     }
 
     if (editing && !id) {
-      toast.error("Identificador do usuário não encontrado.");
+      toast.error("Identificador da viatura não encontrado.");
     }
 
-    setLoading(true);
-
     if (adding) {
-      const response = await fetch("/api/militar/create", {
+      const response = await fetch("/api/viaturas/create", {
         method: "POST",
-        body: JSON.stringify({ graduation, rg: parseInt(rg), name }),
+        body: JSON.stringify({ name }),
       }).then(async (res) => await res.json());
 
       if (response.error) {
         toast.error(response.error);
       } else {
-        toast.success("Militar cadastrado com sucesso.");
-        setMilitary([...military, response.military]);
+        toast.success("Viatura cadastrada com sucesso.");
+        setViaturas([...viaturas, response.viaturas]);
         handleCancel();
       }
     }
 
     if (editing) {
-      const response = await fetch(`/api/militar/${id}/update`, {
+      const response = await fetch(`/api/viaturas/${id}/update`, {
         method: "PUT",
-        body: JSON.stringify({ graduation, rg: parseInt(rg), name }),
+        body: JSON.stringify({ name }),
       }).then(async (res) => await res.json());
 
       if (response.error) {
         toast.error(response.error);
       } else {
-        toast.success("Militar atualizado com sucesso.");
-        const militaryUpdated = military.map((m) => {
-          if (m.id === id) {
-            return { id, graduation, rg: parseInt(rg), name };
+        toast.success("Viatura atualizada com sucesso.");
+        const viaturasUpdated = viaturas.map((v) => {
+          if (v.id === id) {
+            return { id, name };
           }
-          return m;
+          return v;
         });
-        setMilitary(militaryUpdated);
+        setViaturas(viaturasUpdated);
         handleCancel();
       }
     }
-
-    setLoading(false);
   };
 
   return (
-    <MainLayout title="Efetivo">
-      {loading && <Loading />}
-
+    <MainLayout title="Viaturas">
       <div className="mb-2">
         <div
           className={`${
@@ -193,7 +162,7 @@ const Efetivo = () => {
         className={`${deleting ? "flex" : "hidden"} flex-col items-center mb-2`}
       >
         <div className="mb-1">
-          <strong>Deseja realmente deletar o militar?</strong>
+          <strong>Deseja realmente deletar a viatura?</strong>
         </div>
         <div>
           <button
@@ -204,7 +173,7 @@ const Efetivo = () => {
           </button>
           <button
             className="px-4 py-1 ml-1 font-bold text-white bg-red-600 rounded-md"
-            onClick={handleDeleteMilitar}
+            onClick={handleDeleteViatura}
           >
             Sim
           </button>
@@ -220,57 +189,9 @@ const Efetivo = () => {
           className="p-2 text-sm border border-gray-800 rounded-md"
           onSubmit={handleSubmit}
         >
-          <div className="flex items-center mb-2">
-            <div className="pr-1">
-              <label htmlFor="graduation">Posto/Graduação:</label>
-            </div>
-            <div className="flex-1">
-              <select
-                className="w-full p-1 bg-white border border-gray-800 rounded-md focus:outline-none"
-                id="graduation"
-                onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-                  setGraduation(event.target.value)
-                }
-                value={graduation}
-              >
-                <option value={""}>Selecione</option>
-                <option value="Cel">Cel</option>
-                <option value="TC">TC</option>
-                <option value="Maj">Maj</option>
-                <option value="Cap">Cap</option>
-                <option value="1º Ten">1º Ten</option>
-                <option value="2º Ten">2º Ten</option>
-                <option value="Asp Of">Asp Of</option>
-                <option value="Cad">Cad</option>
-                <option value="CHOA">CHOA</option>
-                <option value="ST">ST</option>
-                <option value="1º Sgt">1º Sgt</option>
-                <option value="2º Sgt">2º Sgt</option>
-                <option value="3º Sgt">3º Sgt</option>
-                <option value="Cb">Cb</option>
-                <option value="Sd">Sd</option>
-              </select>
-            </div>
-          </div>
-          <div className="flex items-center mb-2">
-            <div className="pr-1">
-              <label htmlFor="rg">RG:</label>
-            </div>
-            <div className="flex-1">
-              <input
-                className="w-full p-1 border border-gray-800 rounded-md focus:outline-none"
-                type="text"
-                id="rg"
-                onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                  setRg(event.target.value)
-                }
-                value={rg}
-              />
-            </div>
-          </div>
           <div className="flex items-center mb-6">
             <div className="pr-1">
-              <label htmlFor="name">Nome de Guerra:</label>
+              <label htmlFor="name">Nome:</label>
             </div>
             <div className="flex-1">
               <input
@@ -284,6 +205,7 @@ const Efetivo = () => {
               />
             </div>
           </div>
+
           <div className="flex items-center">
             <button
               className="w-1/2 px-6 py-2 mr-1 font-bold text-white bg-red-600 border border-gray-800 rounded-md mr1"
@@ -314,7 +236,7 @@ const Efetivo = () => {
         >
           <div id="linha" className="flex font-bold uppercase">
             <div className="w-2/3 px-2 py-1 text-center border-r border-r-gray-800">
-              Militar
+              Viatura
             </div>
             <div className="w-1/3 px-2 py-1"></div>
           </div>
@@ -323,20 +245,20 @@ const Efetivo = () => {
           id="corpo"
           className="border-l border-r border-gray-800 rounded-b-md"
         >
-          {military ? (
-            military.map((m) => (
+          {viaturas ? (
+            viaturas.map((v) => (
               <div
-                key={m.id}
+                key={v.id}
                 className="flex border-b border-gray-800 last:rounded-b-md"
               >
                 <div className="w-2/3 px-2 py-1 border-r border-r-gray-800">
-                  {m.graduation} {m.rg} {m.name}
+                  {v.name}
                 </div>
                 <div className="flex items-center justify-center w-1/3 px-2 py-1">
-                  <button className="pr-1" onClick={() => handleEdit(m)}>
+                  <button className="pr-1" onClick={() => handleEdit(v)}>
                     <FiEdit2 size={20} />
                   </button>
-                  <button onClick={() => handleDeleting(m.id)}>
+                  <button onClick={() => handleDeleting(v.id)}>
                     <FiTrash2 size={20} />
                   </button>
                 </div>
@@ -383,4 +305,4 @@ const Efetivo = () => {
   );
 };
 
-export default Efetivo;
+export default Viaturas;

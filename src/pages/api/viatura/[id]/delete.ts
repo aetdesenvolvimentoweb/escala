@@ -1,3 +1,4 @@
+import { deleteMilitary } from "@/repositories/militaryRepository";
 import { NextApiRequest, NextApiResponse } from "next";
 
 interface IResponseData {
@@ -5,10 +6,21 @@ interface IResponseData {
   error?: string;
 }
 
-const handler = (req: NextApiRequest, res: NextApiResponse<IResponseData>) => {
+const handler = async (
+  req: NextApiRequest,
+  res: NextApiResponse<IResponseData>
+) => {
   switch (req.method) {
-    case "POST":
+    case "DELETE":
       try {
+        const id = req.query.id as string;
+
+        if (!id) {
+          throw new Error("Identificador do militar não encontrado.");
+        }
+
+        await deleteMilitary(id);
+
         res.status(201).json({ success: true });
       } catch (err: any) {
         res
