@@ -7,7 +7,7 @@ interface IMainLayoutProps {
 }
 
 const MainLayout = ({ children, title }: IMainLayoutProps) => {
-  const pageTitle = `Escala Diária > ${title}`;
+  const pageTitle = `Resumo do Serviço > ${title}`;
 
   return (
     <div id="mainContainer" className="bg-gray-200">

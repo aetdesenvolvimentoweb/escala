@@ -51,7 +51,13 @@ export const listMilitaryByRG = async (
 export const listAllMilitary = async (): Promise<IMilitaryDTO[]> => {
   await connectDB();
 
-  const military = await prisma.military.findMany();
+  const military = await prisma.military.findMany({
+    orderBy: [
+      {
+        name: "asc",
+      },
+    ],
+  });
 
   return military;
 };
