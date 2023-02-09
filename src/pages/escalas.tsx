@@ -1,5 +1,5 @@
 import MainLayout from "@/components/layout/main";
-import { IMilitaryDTO } from "@/dtos/IMilitaryDTO";
+import { IMilitarDTO } from "@/dtos/IMilitarDTO";
 import { ChangeEvent, useEffect, useState } from "react";
 import { FiXCircle } from "react-icons/fi";
 
@@ -11,9 +11,9 @@ const DailyService = () => {
   const [editing, setEditing] = useState<boolean>(false);
   const [deleting, setDeleting] = useState<boolean>(false);
 
-  const [oficial, setOficial] = useState<IMilitaryDTO | null>();
+  const [oficial, setOficial] = useState<IMilitarDTO | null>();
   const [functionMilitary, setFunctionMilitary] = useState<string>("");
-  const [efetivo, setEfetivo] = useState<IMilitaryDTO[]>([] as IMilitaryDTO[]);
+  const [efetivo, setEfetivo] = useState<IMilitarDTO[]>([] as IMilitarDTO[]);
 
   useEffect(() => {
     const loadEfetivo = async () => {
