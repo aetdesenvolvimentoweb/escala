@@ -16,17 +16,44 @@ model User {
 }
 
 model Military {
-  id         String @id @default(auto()) @map("_id") @db.ObjectId
-  graduation String
-  rg         Int    @unique
-  name       String
+  id                  String                @id @default(auto()) @map("_id") @db.ObjectId
+  graduation          String
+  rg                  Int                   @unique
+  name                String
+  active              Boolean               @default(true)
+  MilitaryInGarrinson MilitaryInGarrinson[]
 
   @@map("military")
 }
 
-model Vehicles {
-  id   String @id @default(auto()) @map("_id") @db.ObjectId
-  name String @unique
+model Vehicle {
+  id                String              @id @default(auto()) @map("_id") @db.ObjectId
+  name              String              @unique
+  VehicleInGarrison VehicleInGarrison[]
 
   @@map("vehicles")
+}
+
+model MilitaryInGarrinson {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  military   Military? @relation(fields: [militaryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  militaryId String?   @db.ObjectId
+  garrison   Garrison? @relation(fields: [garrisonId], references: [id])
+  garrisonId String?   @db.ObjectId
+}
+
+model VehicleInGarrison {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  vehicle    Vehicle?  @relation(fields: [vehicleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  vehicleId  String?   @db.ObjectId
+  garrison   Garrison? @relation(fields: [garrisonId], references: [id])
+  garrisonId String?   @db.ObjectId
+}
+
+model Garrison {
+  id       String                @id @default(auto()) @map("_id") @db.ObjectId
+  military MilitaryInGarrinson[]
+  vehicles VehicleInGarrison[]
+
+  @@map("garrisons")
 }

@@ -19,12 +19,14 @@ const handler = async (
     case "POST":
       try {
         const { name } = JSON.parse(req.body);
+        console.log("dentro api route");
 
         if (!name) {
           throw new Error("Campos obrigatórios não foram preenchidos.");
         }
 
         const vehicleAlreadyExist = await listVehicleByName(name);
+        console.log(vehicleAlreadyExist);
 
         if (vehicleAlreadyExist) {
           throw new Error("Já existe uma viatura cadastrada com esse nome.");

@@ -7,7 +7,7 @@ export const createVehicle = async (
 ): Promise<IVehicleDTO> => {
   await connectDB();
 
-  const vehicles = await prisma.vehicles.create({
+  const vehicles = await prisma.vehicle.create({
     data,
   });
 
@@ -21,7 +21,7 @@ export const listVehicleById = async (
 ): Promise<IVehicleDTO | null> => {
   await connectDB();
 
-  const vehicle = await prisma.vehicles.findFirst({
+  const vehicle = await prisma.vehicle.findFirst({
     where: {
       id,
     },
@@ -35,13 +35,17 @@ export const listVehicleById = async (
 export const listVehicleByName = async (
   name: string
 ): Promise<IVehicleDTO | null> => {
+  console.log("dentro repositório");
+
   await connectDB();
 
-  const vehicle = await prisma.vehicles.findUnique({
+  const vehicle = await prisma.vehicle.findUnique({
     where: {
       name,
     },
   });
+
+  console.log("veículos", vehicle);
 
   await disconnectDB();
 
@@ -51,7 +55,7 @@ export const listVehicleByName = async (
 export const listAllVehicles = async (): Promise<IVehicleDTO[]> => {
   await connectDB();
 
-  const vehicles = await prisma.vehicles.findMany({
+  const vehicles = await prisma.vehicle.findMany({
     orderBy: [
       {
         name: "asc",
@@ -65,7 +69,7 @@ export const listAllVehicles = async (): Promise<IVehicleDTO[]> => {
 export const updateVehicle = async (id: string, data: IVehicleCreateDTO) => {
   await connectDB();
 
-  await prisma.vehicles.update({
+  await prisma.vehicle.update({
     where: {
       id,
     },
@@ -78,7 +82,7 @@ export const updateVehicle = async (id: string, data: IVehicleCreateDTO) => {
 export const deleteVehicle = async (id: string): Promise<void> => {
   await connectDB();
 
-  await prisma.vehicles.delete({
+  await prisma.vehicle.delete({
     where: {
       id,
     },

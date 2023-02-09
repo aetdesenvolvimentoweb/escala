@@ -1,5 +1,5 @@
 import MainLayout from "@/components/layout/main";
-import { IViaturaDTO } from "@/dtos/IViaturaDTO";
+import { IVehicleDTO } from "@/dtos/IVehicleDTO";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import {
   FiChevronLeft,
@@ -12,10 +12,10 @@ import {
 } from "react-icons/fi";
 import { toast } from "react-toastify";
 
-const Viaturas = () => {
+const Vehicles = () => {
   const [id, setId] = useState<string>("");
   const [name, setName] = useState<string>("");
-  const [viaturas, setViaturas] = useState<IViaturaDTO[]>([] as IViaturaDTO[]);
+  const [vehicles, setVehicles] = useState<IVehicleDTO[]>([] as IVehicleDTO[]);
 
   const [searched, setSearched] = useState<string>("");
   const [page, setPage] = useState<number>(1);
@@ -25,11 +25,11 @@ const Viaturas = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      const data = await fetch("/api/viaturas/listAll", { method: "GET" }).then(
+      const data = await fetch("/api/vehicles/listAll", { method: "GET" }).then(
         async (res) => res.json()
       );
       console.log(data);
-      setViaturas(data.viaturas);
+      setVehicles(data.vehicles);
     };
 
     loadData();
@@ -44,10 +44,10 @@ const Viaturas = () => {
     setDeleting(false);
   };
 
-  const handleEdit = (viatura: IViaturaDTO) => {
+  const handleEdit = (vehicle: IVehicleDTO) => {
     setEditing(true);
-    setId(viatura.id);
-    setName(viatura.name);
+    setId(vehicle.id);
+    setName(vehicle.name);
   };
 
   const handleDeleting = (id: string) => {
@@ -63,14 +63,14 @@ const Viaturas = () => {
     }
   };
 
-  const handleDeleteViatura = async () => {
-    const response = await fetch(`/api/viaturas/${id}/delete`, {
+  const handleDeleteVehicle = async () => {
+    const response = await fetch(`/api/vehicles/${id}/delete`, {
       method: "DELETE",
     }).then(async (res) => await res.json());
 
     if (response.success) {
       toast.success("Viatura deletada com sucesso.");
-      setViaturas(viaturas.filter((v) => v.id !== id));
+      setVehicles(vehicles.filter((v) => v.id !== id));
       handleCancel();
     } else {
       toast.error(response.error);
@@ -90,7 +90,7 @@ const Viaturas = () => {
     }
 
     if (adding) {
-      const response = await fetch("/api/viaturas/create", {
+      const response = await fetch("/api/vehicles/create", {
         method: "POST",
         body: JSON.stringify({ name }),
       }).then(async (res) => await res.json());
@@ -99,13 +99,13 @@ const Viaturas = () => {
         toast.error(response.error);
       } else {
         toast.success("Viatura cadastrada com sucesso.");
-        setViaturas([...viaturas, response.viaturas]);
+        setVehicles([...vehicles, response.vehicles]);
         handleCancel();
       }
     }
 
     if (editing) {
-      const response = await fetch(`/api/viaturas/${id}/update`, {
+      const response = await fetch(`/api/vehicles/${id}/update`, {
         method: "PUT",
         body: JSON.stringify({ name }),
       }).then(async (res) => await res.json());
@@ -114,13 +114,13 @@ const Viaturas = () => {
         toast.error(response.error);
       } else {
         toast.success("Viatura atualizada com sucesso.");
-        const viaturasUpdated = viaturas.map((v) => {
+        const vehiclesUpdated = vehicles.map((v) => {
           if (v.id === id) {
             return { id, name };
           }
           return v;
         });
-        setViaturas(viaturasUpdated);
+        setVehicles(vehiclesUpdated);
         handleCancel();
       }
     }
@@ -173,7 +173,7 @@ const Viaturas = () => {
           </button>
           <button
             className="px-4 py-1 ml-1 font-bold text-white bg-red-600 rounded-md"
-            onClick={handleDeleteViatura}
+            onClick={handleDeleteVehicle}
           >
             Sim
           </button>
@@ -245,8 +245,8 @@ const Viaturas = () => {
           id="corpo"
           className="border-l border-r border-gray-800 rounded-b-md"
         >
-          {viaturas ? (
-            viaturas.map((v) => (
+          {vehicles ? (
+            vehicles.map((v) => (
               <div
                 key={v.id}
                 className="flex border-b border-gray-800 last:rounded-b-md"
@@ -305,4 +305,4 @@ const Viaturas = () => {
   );
 };
 
-export default Viaturas;
+export default Vehicles;
