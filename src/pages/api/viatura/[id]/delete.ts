@@ -1,4 +1,4 @@
-import { deleteMilitary } from "@/repositories/militaryRepository";
+import { deleteVehicle } from "@/repositories/vehiclesRepository";
 import { NextApiRequest, NextApiResponse } from "next";
 
 interface IResponseData {
@@ -16,10 +16,10 @@ const handler = async (
         const id = req.query.id as string;
 
         if (!id) {
-          throw new Error("Identificador do militar não encontrado.");
+          throw new Error("Identificador da viatura não encontrado.");
         }
 
-        await deleteMilitary(id);
+        await deleteVehicle(id);
 
         res.status(201).json({ success: true });
       } catch (err: any) {

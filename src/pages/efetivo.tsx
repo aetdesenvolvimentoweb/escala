@@ -1,6 +1,6 @@
 import Loading from "@/components/layout/loading";
 import MainLayout from "@/components/layout/main";
-import { IMilitarDTO } from "@/dtos/IMilitarDTO";
+import { IMilitaryDTO } from "@/dtos/IMilitaryDTO";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import {
   FiChevronLeft,
@@ -18,7 +18,9 @@ const Efetivo = () => {
   const [graduation, setGraduation] = useState<string>("");
   const [rg, setRg] = useState<string>("");
   const [name, setName] = useState<string>("");
-  const [military, setMilitary] = useState<IMilitarDTO[]>([] as IMilitarDTO[]);
+  const [military, setMilitary] = useState<IMilitaryDTO[]>(
+    [] as IMilitaryDTO[]
+  );
 
   const [searched, setSearched] = useState<string>("");
   const [page, setPage] = useState<number>(1);
@@ -31,7 +33,7 @@ const Efetivo = () => {
     const loadData = async () => {
       setLoading(true);
 
-      const data = await fetch("/api/militar/listAll", { method: "GET" }).then(
+      const data = await fetch("/api/military/listAll", { method: "GET" }).then(
         async (res) => res.json()
       );
 
@@ -53,7 +55,7 @@ const Efetivo = () => {
     setDeleting(false);
   };
 
-  const handleEdit = (military: IMilitarDTO) => {
+  const handleEdit = (military: IMilitaryDTO) => {
     setEditing(true);
     setId(military.id);
     setGraduation(military.graduation);
@@ -77,7 +79,7 @@ const Efetivo = () => {
   const handleDeleteMilitar = async () => {
     setLoading(true);
 
-    const response = await fetch(`/api/militar/${id}/delete`, {
+    const response = await fetch(`/api/military/${id}/delete`, {
       method: "DELETE",
     }).then(async (res) => await res.json());
 
@@ -117,7 +119,7 @@ const Efetivo = () => {
     setLoading(true);
 
     if (adding) {
-      const response = await fetch("/api/militar/create", {
+      const response = await fetch("/api/military/create", {
         method: "POST",
         body: JSON.stringify({ graduation, rg: parseInt(rg), name }),
       }).then(async (res) => await res.json());
@@ -132,7 +134,7 @@ const Efetivo = () => {
     }
 
     if (editing) {
-      const response = await fetch(`/api/militar/${id}/update`, {
+      const response = await fetch(`/api/military/${id}/update`, {
         method: "PUT",
         body: JSON.stringify({ graduation, rg: parseInt(rg), name }),
       }).then(async (res) => await res.json());

@@ -23,3 +23,10 @@ model Military {
 
   @@map("military")
 }
+
+model Vehicles {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String @unique
+
+  @@map("vehicles")
+}

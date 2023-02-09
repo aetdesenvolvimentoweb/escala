@@ -1,4 +1,4 @@
-import { updateMilitary } from "@/repositories/militaryRepository";
+import { updateVehicle } from "@/repositories/vehiclesRepository";
 import { NextApiRequest, NextApiResponse } from "next";
 
 interface IResponseData {
@@ -13,20 +13,18 @@ const handler = async (
   switch (req.method) {
     case "PUT":
       try {
-        const { graduation, rg, name } = JSON.parse(req.body);
+        const { name } = JSON.parse(req.body);
         const id = req.query.id as string;
 
         if (!id) {
-          throw new Error("Identificador do usuário não encontrado.");
+          throw new Error("Identificador da viatura não encontrado.");
         }
 
-        if (!graduation || !rg || !name) {
+        if (!name) {
           throw new Error("Campos obrigatórios não foram preenchidos.");
         }
 
-        await updateMilitary(id, {
-          graduation,
-          rg: parseInt(rg),
+        await updateVehicle(id, {
           name,
         });
 

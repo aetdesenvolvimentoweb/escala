@@ -1,13 +1,13 @@
-import { IMilitaryDTO } from "@/dtos/IMilitaryDTO";
+import { IVehicleDTO } from "@/dtos/IVehicleDTO";
 import {
-  createMilitary,
-  listMilitaryByRG,
-} from "@/repositories/militaryRepository";
+  createVehicle,
+  listVehicleByName,
+} from "@/repositories/vehiclesRepository";
 import { NextApiRequest, NextApiResponse } from "next";
 
 interface IResponseData {
   success: boolean;
-  military?: IMilitaryDTO;
+  vehicle?: IVehicleDTO;
   error?: string;
 }
 
@@ -18,25 +18,25 @@ const handler = async (
   switch (req.method) {
     case "POST":
       try {
-        const { graduation, rg, name } = JSON.parse(req.body);
+        const { name } = JSON.parse(req.body);
 
-        if (!graduation || !rg || !name) {
+        if (!name) {
           throw new Error("Campos obrigatórios não foram preenchidos.");
         }
 
-        const militaryAlreadyExist = await listMilitaryByRG(rg);
+        const vehicleAlreadyExist = await listVehicleByName(name);
 
-        if (militaryAlreadyExist) {
-          throw new Error("Já existe um militar cadastrado com esse RG.");
+        if (vehicleAlreadyExist) {
+          throw new Error("Já existe uma viatura cadastrada com esse nome.");
         }
 
-        const military = await createMilitary({ graduation, rg, name });
+        const vehicle = await createVehicle({ name });
 
-        if (!military) {
-          throw new Error("Erro ao cadastrar militar.");
+        if (!vehicle) {
+          throw new Error("Erro ao cadastrar viatura.");
         }
 
-        res.status(201).json({ success: true, military });
+        res.status(201).json({ success: true, vehicle });
       } catch (err: any) {
         res
           .status(400)
