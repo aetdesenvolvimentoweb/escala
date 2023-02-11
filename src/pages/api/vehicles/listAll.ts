@@ -16,6 +16,7 @@ const handler = async (
     case "GET":
       try {
         const vehicles = await listAllVehicles();
+        console.log("veículos api", vehicles);
 
         res.status(201).json({ success: true, vehicles });
       } catch (err: any) {

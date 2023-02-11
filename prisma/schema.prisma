@@ -16,44 +16,32 @@ model User {
 }
 
 model Military {
-  id                  String                @id @default(auto()) @map("_id") @db.ObjectId
-  graduation          String
-  rg                  Int                   @unique
-  name                String
-  active              Boolean               @default(true)
-  MilitaryInGarrinson MilitaryInGarrinson[]
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  graduation  String
+  rg          Int        @unique
+  name        String
+  active      Boolean    @default(true)
+  garrison    Garrison[] @relation(fields: [garrisonIds], references: [id])
+  garrisonIds String[]   @db.ObjectId
 
   @@map("military")
 }
 
 model Vehicle {
-  id                String              @id @default(auto()) @map("_id") @db.ObjectId
-  name              String              @unique
-  VehicleInGarrison VehicleInGarrison[]
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  name        String     @unique
+  garrison    Garrison[] @relation(fields: [garrisonIds], references: [id])
+  garrisonIds String[]   @db.ObjectId
 
   @@map("vehicles")
 }
 
-model MilitaryInGarrinson {
-  id         String    @id @default(auto()) @map("_id") @db.ObjectId
-  military   Military? @relation(fields: [militaryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  militaryId String?   @db.ObjectId
-  garrison   Garrison? @relation(fields: [garrisonId], references: [id])
-  garrisonId String?   @db.ObjectId
-}
-
-model VehicleInGarrison {
-  id         String    @id @default(auto()) @map("_id") @db.ObjectId
-  vehicle    Vehicle?  @relation(fields: [vehicleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  vehicleId  String?   @db.ObjectId
-  garrison   Garrison? @relation(fields: [garrisonId], references: [id])
-  garrisonId String?   @db.ObjectId
-}
-
 model Garrison {
-  id       String                @id @default(auto()) @map("_id") @db.ObjectId
-  military MilitaryInGarrinson[]
-  vehicles VehicleInGarrison[]
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  military    Military[] @relation(fields: [militaryIds], references: [id])
+  militaryIds String[]   @db.ObjectId
+  vehicles    Vehicle[]  @relation(fields: [vehiclesIds], references: [id])
+  vehiclesIds String[]   @db.ObjectId
 
   @@map("garrisons")
 }

@@ -228,8 +228,8 @@ const Efetivo = () => {
             </div>
             <div className="flex-1">
               <select
-                className="w-full p-1 bg-white border border-gray-800 rounded-md focus:outline-none"
                 id="graduation"
+                className="w-full p-1 bg-white border border-gray-800 rounded-md focus:outline-none"
                 onChange={(event: ChangeEvent<HTMLSelectElement>) =>
                   setGraduation(event.target.value)
                 }
