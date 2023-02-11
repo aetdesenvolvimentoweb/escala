@@ -12,24 +12,9 @@ import {
 import { FaExchangeAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import Loading from "@/components/layout/loading";
-interface IGarrison {
-  vehicle: string;
-  military: string[];
-}
-
-interface IServiceExchange {
-  replaced: string;
-  substitute: string;
-  initial: Date;
-  final: Date;
-}
-
-interface IForceMap {
-  standbyOfficer: string;
-  adjunct: string;
-  garrisons: IGarrison[];
-  serviceExchanges: IServiceExchange[];
-}
+import { IGarrisonCreateDTO } from "@/dtos/IGarrisonDTO";
+import { IServiceExchangeCreateDTO } from "@/dtos/IServiceExchange";
+import { IForceMapCreateDTO } from "@/dtos/IForceMapDTO";
 
 const Garrison = () => {
   const [vehicles, setVehicles] = useState<IVehicleDTO[]>([] as IVehicleDTO[]);
@@ -48,11 +33,13 @@ const Garrison = () => {
   const [finalService, setFinalService] = useState<Date | null>(null);
   const [standbyOfficer, setStandbyOfficer] = useState<string>("");
   const [adjunct, setAdjunct] = useState<string>("");
-  const [garrisons, setGarrisons] = useState<IGarrison[]>([] as IGarrison[]);
-  const [serviceExchanges, setServiceExchanges] = useState<IServiceExchange[]>(
-    [] as IServiceExchange[]
+  const [garrisons, setGarrisons] = useState<IGarrisonCreateDTO[]>(
+    [] as IGarrisonCreateDTO[]
   );
-  const [forceMap, setForceMap] = useState<IForceMap | null>(null);
+  const [serviceExchanges, setServiceExchanges] = useState<
+    IServiceExchangeCreateDTO[]
+  >([] as IServiceExchangeCreateDTO[]);
+  const [forceMap, setForceMap] = useState<IForceMapCreateDTO | null>(null);
 
   const [searched, setSearched] = useState<string>("");
   const [page, setPage] = useState<number>(1);
@@ -234,7 +221,7 @@ const Garrison = () => {
       return;
     }
 
-    const data: IForceMap = {
+    const data: IForceMapCreateDTO = {
       standbyOfficer,
       adjunct,
       garrisons,
