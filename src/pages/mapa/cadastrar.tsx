@@ -636,124 +636,129 @@ const Garrison = () => {
       {/* final formulario troca de serviço */}
 
       {/* início do mapa força */}
-      <div className="mt-6">
-        <form
-          className="w-full p-2 text-sm border border-gray-800 rounded-md"
-          onSubmit={handleSubmitForceMap}
-        >
-          <h2 className="mb-2 font-bold uppercase">
-            Mapa Força em Desenvolvimento
-          </h2>
-          <div>
-            <span className="pr-1 font-bold">Oficial de dia:</span>
-            {military &&
-              standbyOfficer &&
-              military.map((m) => {
-                if (m.id === standbyOfficer) {
-                  return (
-                    <span key={m.id}>
-                      {m.graduation} {m.rg} {m.name}
-                    </span>
-                  );
-                }
-              })}
-          </div>
-          <div className="mt-1">
-            <span className="pr-1 font-bold">Adjunto:</span>
-            {military &&
-              adjunct &&
-              military.map((m) => {
-                if (m.id === adjunct) {
-                  return (
-                    <span key={m.id}>
-                      {m.graduation} {m.rg} {m.name}
-                    </span>
-                  );
-                }
-              })}
-          </div>
-
-          <div className="mt-1">
-            <span className="font-bold">Guarnições:</span>
-            {garrisons &&
-              garrisons.map((g) => {
-                return vehicles.map((v) => {
-                  if (v.id === g.vehicle) {
+      {(standbyOfficer ||
+        adjunct ||
+        garrisons.length > 0 ||
+        serviceExchanges.length > 0) && (
+        <div className="mt-6">
+          <form
+            className="w-full p-2 text-sm border border-gray-800 rounded-md"
+            onSubmit={handleSubmitForceMap}
+          >
+            <h2 className="mb-2 font-bold uppercase">
+              Mapa Força em Desenvolvimento
+            </h2>
+            <div>
+              <span className="pr-1 font-bold">Oficial de dia:</span>
+              {military &&
+                standbyOfficer &&
+                military.map((m) => {
+                  if (m.id === standbyOfficer) {
                     return (
-                      <div
-                        className="p-1 mb-2 border border-gray-800 rounded-md"
-                        key={v.id}
-                      >
-                        <span className="block font-bold">{v.name}</span>
-                        <div className="flex flex-col pl-4">
-                          {g.military.map((gm) => {
-                            return military.map((m) => {
-                              if (gm === m.id) {
-                                return (
-                                  <span key={m.id}>
-                                    {m.graduation} {m.rg} {m.name}
-                                  </span>
-                                );
-                              }
-                            });
-                          })}
-                        </div>
-                      </div>
+                      <span key={m.id}>
+                        {m.graduation} {m.rg} {m.name}
+                      </span>
                     );
                   }
-                });
-              })}
-          </div>
+                })}
+            </div>
+            <div className="mt-1">
+              <span className="pr-1 font-bold">Adjunto:</span>
+              {military &&
+                adjunct &&
+                military.map((m) => {
+                  if (m.id === adjunct) {
+                    return (
+                      <span key={m.id}>
+                        {m.graduation} {m.rg} {m.name}
+                      </span>
+                    );
+                  }
+                })}
+            </div>
 
-          <div className="mt-1">
-            <span className="font-bold">Trocas de Serviço:</span>
-            {serviceExchanges &&
-              serviceExchanges.map((s, index) => {
-                return (
-                  <div
-                    key={s.replaced + index}
-                    className="flex flex-col p-1 mb-2 border border-gray-800 rounded-md"
-                  >
-                    <div>
-                      <span className="pr-1 font-bold">Substituído:</span>
-                      {military.map((m) => {
-                        if (m.id === s.replaced) {
-                          return (
-                            <span key={m.id}>
-                              {m.graduation} {m.rg} {m.name}
-                            </span>
-                          );
-                        }
-                      })}
-                    </div>
-                    <div>
-                      <span className="pr-1 font-bold">Substituto:</span>
-                      {military.map((m) => {
-                        if (m.id === s.substitute) {
-                          return (
-                            <span key={m.id}>
-                              {m.graduation} {m.rg} {m.name}
-                            </span>
-                          );
-                        }
-                      })}
-                    </div>
-                    <div>
-                      <span className="pr-1 font-bold">Início:</span>
-                      <span>{`${s.initial?.toLocaleDateString()} ${s.initial?.toLocaleTimeString()}`}</span>
-                    </div>
-                    <div>
-                      <span className="pr-1 font-bold">Final:</span>
-                      <span>{`${s.final?.toLocaleDateString()} ${s.final?.toLocaleTimeString()}`}</span>
-                    </div>
-                  </div>
-                );
-              })}
-          </div>
+            <div className="mt-1">
+              <span className="font-bold">Guarnições:</span>
+              {garrisons &&
+                garrisons.map((g) => {
+                  return vehicles.map((v) => {
+                    if (v.id === g.vehicle) {
+                      return (
+                        <div
+                          className="p-1 mb-2 border border-gray-800 rounded-md"
+                          key={v.id}
+                        >
+                          <span className="block font-bold">{v.name}</span>
+                          <div className="flex flex-col pl-4">
+                            {g.military.map((gm) => {
+                              return military.map((m) => {
+                                if (gm === m.id) {
+                                  return (
+                                    <span key={m.id}>
+                                      {m.graduation} {m.rg} {m.name}
+                                    </span>
+                                  );
+                                }
+                              });
+                            })}
+                          </div>
+                        </div>
+                      );
+                    }
+                  });
+                })}
+            </div>
 
-          {renderButtonsForm()}
-        </form>
-      </div>
+            <div className="mt-1">
+              <span className="font-bold">Trocas de Serviço:</span>
+              {serviceExchanges &&
+                serviceExchanges.map((s, index) => {
+                  return (
+                    <div
+                      key={s.replaced + index}
+                      className="flex flex-col p-1 mb-2 border border-gray-800 rounded-md"
+                    >
+                      <div>
+                        <span className="pr-1 font-bold">Substituído:</span>
+                        {military.map((m) => {
+                          if (m.id === s.replaced) {
+                            return (
+                              <span key={m.id}>
+                                {m.graduation} {m.rg} {m.name}
+                              </span>
+                            );
+                          }
+                        })}
+                      </div>
+                      <div>
+                        <span className="pr-1 font-bold">Substituto:</span>
+                        {military.map((m) => {
+                          if (m.id === s.substitute) {
+                            return (
+                              <span key={m.id}>
+                                {m.graduation} {m.rg} {m.name}
+                              </span>
+                            );
+                          }
+                        })}
+                      </div>
+                      <div>
+                        <span className="pr-1 font-bold">Início:</span>
+                        <span>{`${s.initial?.toLocaleDateString()} ${s.initial?.toLocaleTimeString()}`}</span>
+                      </div>
+                      <div>
+                        <span className="pr-1 font-bold">Final:</span>
+                        <span>{`${s.final?.toLocaleDateString()} ${s.final?.toLocaleTimeString()}`}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+
+            {renderButtonsForm()}
+          </form>
+        </div>
+      )}
       {/* final do mapa força */}
     </MainLayout>
   );
