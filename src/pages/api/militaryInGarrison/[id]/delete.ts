@@ -1,10 +1,8 @@
-import { IVehicleDTO } from "@/dtos/IVehicleDTO";
-import { listAllVehicles } from "@/repositories/vehiclesRepository";
+import { deleteVehicle } from "@/repositories/vehiclesRepository";
 import { NextApiRequest, NextApiResponse } from "next";
 
 interface IResponseData {
   success: boolean;
-  vehicles?: IVehicleDTO[];
   error?: string;
 }
 
@@ -13,11 +11,17 @@ const handler = async (
   res: NextApiResponse<IResponseData>
 ) => {
   switch (req.method) {
-    case "GET":
+    case "DELETE":
       try {
-        const vehicles = await listAllVehicles();
+        const id = req.query.id as string;
 
-        res.status(201).json({ success: true, vehicles });
+        if (!id) {
+          throw new Error("Identificador da viatura não encontrado.");
+        }
+
+        await deleteVehicle(id);
+
+        res.status(201).json({ success: true });
       } catch (err: any) {
         res
           .status(400)

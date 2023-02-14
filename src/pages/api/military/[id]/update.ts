@@ -13,19 +13,19 @@ const handler = async (
   switch (req.method) {
     case "PUT":
       try {
-        const { graduation, rg, name } = JSON.parse(req.body);
+        const { graduationId, rg, name } = JSON.parse(req.body);
         const id = req.query.id as string;
 
         if (!id) {
           throw new Error("Identificador do militar não encontrado.");
         }
 
-        if (!graduation || !rg || !name) {
+        if (!graduationId || !rg || !name) {
           throw new Error("Campos obrigatórios não foram preenchidos.");
         }
 
         await updateMilitary(id, {
-          graduation,
+          graduationId,
           rg: parseInt(rg),
           name,
         });

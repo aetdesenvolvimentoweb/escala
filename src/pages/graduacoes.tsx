@@ -1,6 +1,6 @@
 import Loading from "@/components/layout/loading";
 import MainLayout from "@/components/layout/main";
-import { IVehicleDTO } from "@/dtos/IVehicleDTO";
+import { IGraduationDTO } from "@/dtos/IGraduationDTO";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import {
   FiChevronLeft,
@@ -13,10 +13,14 @@ import {
 } from "react-icons/fi";
 import { toast } from "react-toastify";
 
-const Vehicles = () => {
+const Graduations = () => {
   const [id, setId] = useState<string>("");
+  const [order, setOrder] = useState<number>(0);
   const [name, setName] = useState<string>("");
-  const [vehicles, setVehicles] = useState<IVehicleDTO[]>([] as IVehicleDTO[]);
+  const [graduations, setGraduations] = useState<IGraduationDTO[]>(
+    [] as IGraduationDTO[]
+  );
+
   const [loading, setLoading] = useState<boolean>(false);
   const [searched, setSearched] = useState<string>("");
   const [page, setPage] = useState<number>(1);
@@ -28,12 +32,12 @@ const Vehicles = () => {
     const loadData = async () => {
       setLoading(true);
 
-      const data = await fetch("/api/vehicles/listAll", { method: "GET" }).then(
-        async (res) => await res.json()
-      );
+      const data = await fetch("/api/graduations/listAll", {
+        method: "GET",
+      }).then(async (res) => res.json());
 
       setLoading(false);
-      setVehicles(data.vehicles);
+      setGraduations(data.graduations);
     };
 
     loadData();
@@ -41,6 +45,7 @@ const Vehicles = () => {
 
   const handleCancel = () => {
     setId("");
+    setOrder(0);
     setName("");
     setPage(1);
     setAdding(false);
@@ -48,10 +53,11 @@ const Vehicles = () => {
     setDeleting(false);
   };
 
-  const handleEdit = (vehicle: IVehicleDTO) => {
+  const handleEdit = (graduation: IGraduationDTO) => {
     setEditing(true);
-    setId(vehicle.id);
-    setName(vehicle.name);
+    setId(graduation.id);
+    setOrder(graduation.order);
+    setName(graduation.name);
   };
 
   const handleDeleting = (id: string) => {
@@ -67,18 +73,22 @@ const Vehicles = () => {
     }
   };
 
-  const handleDeleteVehicle = async () => {
+  const handleDeleteGraduation = async () => {
     setLoading(true);
 
-    const response = await fetch(`/api/vehicles/${id}/delete`, {
+    const response = await fetch(`/api/graduations/${id}/delete`, {
       method: "DELETE",
     }).then(async (res) => await res.json());
 
     setLoading(false);
 
     if (response.success) {
-      toast.success("Viatura deletada com sucesso.");
-      setVehicles(vehicles.filter((v) => v.id !== id));
+      toast.success("Graduação deletada com sucesso.");
+      setGraduations(
+        graduations
+          .filter((v) => v.id !== id)
+          .sort((a, b) => a["order"] - b["order"])
+      );
       handleCancel();
     } else {
       toast.error(response.error);
@@ -94,13 +104,12 @@ const Vehicles = () => {
     }
 
     if (editing && !id) {
-      toast.error("Identificador da viatura não encontrado.");
+      toast.error("Identificador da graduação não foi encontrado.");
     }
-
     setLoading(true);
 
     if (adding) {
-      const response = await fetch("/api/vehicles/create", {
+      const response = await fetch("/api/graduations/create", {
         method: "POST",
         body: JSON.stringify({ name }),
       }).then(async (res) => await res.json());
@@ -108,29 +117,37 @@ const Vehicles = () => {
       if (response.error) {
         toast.error(response.error);
       } else {
-        toast.success("Viatura cadastrada com sucesso.");
-        setVehicles([...vehicles, response.vehicle]);
+        toast.success("Graduação cadastrada com sucesso.");
+
+        setGraduations(
+          [...graduations, response.graduation].sort(
+            (a, b) => a["order"] - b["order"]
+          )
+        );
         handleCancel();
       }
     }
 
     if (editing) {
-      const response = await fetch(`/api/vehicles/${id}/update`, {
+      const response = await fetch(`/api/graduations/${id}/update`, {
         method: "PUT",
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ order, name }),
       }).then(async (res) => await res.json());
 
       if (response.error) {
         toast.error(response.error);
       } else {
-        toast.success("Viatura atualizada com sucesso.");
-        const vehiclesUpdated = vehicles.map((v) => {
-          if (v.id === id) {
-            return { id, name };
+        toast.success("Graduação atualizada com sucesso.");
+        const graduationUpdated = graduations.map((g) => {
+          if (g.id === id) {
+            return { id, order, name };
           }
-          return v;
+          return g;
         });
-        setVehicles(vehiclesUpdated);
+
+        setGraduations(
+          graduationUpdated.sort((a, b) => a["order"] - b["order"])
+        );
         handleCancel();
       }
     }
@@ -139,7 +156,7 @@ const Vehicles = () => {
   };
 
   return (
-    <MainLayout title="Viaturas">
+    <MainLayout title="Graduações">
       {loading && <Loading />}
       <div>
         <div
@@ -175,7 +192,7 @@ const Vehicles = () => {
         className={`${deleting ? "flex" : "hidden"} flex-col items-center mt-2`}
       >
         <div className="mb-1">
-          <strong>Deseja realmente deletar a viatura?</strong>
+          <strong>Deseja realmente deletar a graduação?</strong>
         </div>
         <div>
           <button
@@ -186,7 +203,7 @@ const Vehicles = () => {
           </button>
           <button
             className="px-4 py-1 ml-1 font-bold text-white bg-red-600 rounded-md"
-            onClick={handleDeleteVehicle}
+            onClick={handleDeleteGraduation}
           >
             Sim
           </button>
@@ -202,10 +219,25 @@ const Vehicles = () => {
           className="w-full p-2 text-sm border border-gray-800 rounded-md"
           onSubmit={handleSubmit}
         >
-          <div className="text-center">
-            <h2 className="font-bold">Cadastrar Viatura</h2>
-          </div>
-          <div className="flex items-center mt-4">
+          {editing && (
+            <div className="flex items-center mb-6">
+              <div className="pr-1">
+                <label htmlFor="order">Ordem:</label>
+              </div>
+              <div className="flex-1">
+                <input
+                  className="w-full p-1 border border-gray-800 rounded-md focus:outline-none"
+                  type="number"
+                  id="order"
+                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                    setOrder(parseInt(event.target.value))
+                  }
+                  value={order ? order : undefined}
+                />
+              </div>
+            </div>
+          )}
+          <div className="flex items-center mb-6">
             <div className="pr-1">
               <label htmlFor="name">Nome:</label>
             </div>
@@ -222,7 +254,7 @@ const Vehicles = () => {
             </div>
           </div>
 
-          <div className="flex items-center mt-6">
+          <div className="flex items-center">
             <button
               className="w-1/2 px-6 py-2 mr-1 font-bold text-white bg-red-600 border border-gray-800 rounded-md mr1"
               type="button"
@@ -251,30 +283,36 @@ const Vehicles = () => {
           className="bg-gray-400 border border-gray-800 rounded-t-md"
         >
           <div id="linha" className="flex font-bold uppercase">
-            <div className="w-2/3 px-2 py-1 text-center border-r border-r-gray-800">
-              Viatura
+            <div className="w-1/6 px-2 py-1 text-center border-r border-r-gray-800">
+              #
             </div>
-            <div className="w-1/3 px-2 py-1"></div>
+            <div className="w-3/6 px-2 py-1 text-center border-r border-r-gray-800">
+              Graduação
+            </div>
+            <div className="w-2/6 px-2 py-1"></div>
           </div>
         </div>
         <div
           id="corpo"
           className="border-l border-r border-gray-800 rounded-b-md"
         >
-          {vehicles.length > 0 ? (
-            vehicles.map((v) => (
+          {graduations.length > 0 ? (
+            graduations.map((g) => (
               <div
-                key={v.id}
+                key={g.id}
                 className="flex border-b border-gray-800 last:rounded-b-md"
               >
-                <div className="w-2/3 px-2 py-1 border-r border-r-gray-800">
-                  {v.name}
+                <div className="w-1/6 px-2 py-1 text-center border-r border-r-gray-800">
+                  {g.order}
                 </div>
-                <div className="flex items-center justify-center w-1/3 px-2 py-1">
-                  <button className="pr-1" onClick={() => handleEdit(v)}>
+                <div className="w-3/6 px-2 py-1 border-r border-r-gray-800">
+                  {g.name}
+                </div>
+                <div className="flex items-center justify-center w-2/6 px-2 py-1">
+                  <button className="pr-1" onClick={() => handleEdit(g)}>
                     <FiEdit2 size={20} />
                   </button>
-                  <button onClick={() => handleDeleting(v.id)}>
+                  <button onClick={() => handleDeleting(g.id)}>
                     <FiTrash2 size={20} />
                   </button>
                 </div>
@@ -321,4 +359,4 @@ const Vehicles = () => {
   );
 };
 
-export default Vehicles;
+export default Graduations;

@@ -1,5 +1,6 @@
 import Loading from "@/components/layout/loading";
 import MainLayout from "@/components/layout/main";
+import { IGraduationDTO } from "@/dtos/IGraduationDTO";
 import { IMilitaryDTO } from "@/dtos/IMilitaryDTO";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import {
@@ -15,9 +16,12 @@ import { toast } from "react-toastify";
 
 const Efetivo = () => {
   const [id, setId] = useState<string>("");
-  const [graduation, setGraduation] = useState<string>("");
-  const [rg, setRg] = useState<string>("");
+  const [graduationId, setGraduationId] = useState<string>("");
+  const [rg, setRg] = useState<number>(0);
   const [name, setName] = useState<string>("");
+  const [graduations, setGraduations] = useState<IGraduationDTO[]>(
+    [] as IGraduationDTO[]
+  );
   const [military, setMilitary] = useState<IMilitaryDTO[]>(
     [] as IMilitaryDTO[]
   );
@@ -33,12 +37,18 @@ const Efetivo = () => {
     const loadData = async () => {
       setLoading(true);
 
-      const data = await fetch("/api/military/listAll", { method: "GET" }).then(
-        async (res) => res.json()
-      );
+      const dataMilitary = await fetch("/api/military/listAll", {
+        method: "GET",
+      }).then(async (res) => await res.json());
+
+      const dataGraduations = await fetch("/api/graduations/listAll", {
+        method: "GET",
+      }).then(async (res) => await res.json());
+
+      setGraduations(dataGraduations.graduations);
+      setMilitary(dataMilitary.military);
 
       setLoading(false);
-      setMilitary(data.military);
     };
 
     loadData();
@@ -46,8 +56,8 @@ const Efetivo = () => {
 
   const handleCancel = () => {
     setId("");
-    setGraduation("");
-    setRg("");
+    setGraduationId("");
+    setRg(0);
     setName("");
     setPage(1);
     setAdding(false);
@@ -58,8 +68,8 @@ const Efetivo = () => {
   const handleEdit = (military: IMilitaryDTO) => {
     setEditing(true);
     setId(military.id);
-    setGraduation(military.graduation);
-    setRg(military.rg.toString());
+    setGraduationId(military.graduationId);
+    setRg(military.rg);
     setName(military.name);
   };
 
@@ -97,7 +107,7 @@ const Efetivo = () => {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
-    if (!graduation) {
+    if (!graduationId) {
       toast.error("Campo Posto/Graduação precisa ser preenchido.");
       document.getElementById("graduation")?.focus();
     }
@@ -121,7 +131,7 @@ const Efetivo = () => {
     if (adding) {
       const response = await fetch("/api/military/create", {
         method: "POST",
-        body: JSON.stringify({ graduation, rg: parseInt(rg), name }),
+        body: JSON.stringify({ graduationId, rg, name }),
       }).then(async (res) => await res.json());
 
       if (response.error) {
@@ -136,7 +146,7 @@ const Efetivo = () => {
     if (editing) {
       const response = await fetch(`/api/military/${id}/update`, {
         method: "PUT",
-        body: JSON.stringify({ graduation, rg: parseInt(rg), name }),
+        body: JSON.stringify({ graduationId, rg, name }),
       }).then(async (res) => await res.json());
 
       if (response.error) {
@@ -145,7 +155,7 @@ const Efetivo = () => {
         toast.success("Militar atualizado com sucesso.");
         const militaryUpdated = military.map((m) => {
           if (m.id === id) {
-            return { id, graduation, rg: parseInt(rg), name };
+            return { id, graduationId, graduation: m.graduation, rg, name };
           }
           return m;
         });
@@ -231,26 +241,18 @@ const Efetivo = () => {
                 id="graduation"
                 className="w-full p-1 bg-white border border-gray-800 rounded-md focus:outline-none"
                 onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-                  setGraduation(event.target.value)
+                  setGraduationId(event.target.value)
                 }
-                value={graduation}
+                value={graduationId}
               >
                 <option value={""}>Selecione</option>
-                <option value="Cel">Cel</option>
-                <option value="TC">TC</option>
-                <option value="Maj">Maj</option>
-                <option value="Cap">Cap</option>
-                <option value="1º Ten">1º Ten</option>
-                <option value="2º Ten">2º Ten</option>
-                <option value="Asp Of">Asp Of</option>
-                <option value="Cad">Cad</option>
-                <option value="CHOA">CHOA</option>
-                <option value="ST">ST</option>
-                <option value="1º Sgt">1º Sgt</option>
-                <option value="2º Sgt">2º Sgt</option>
-                <option value="3º Sgt">3º Sgt</option>
-                <option value="Cb">Cb</option>
-                <option value="Sd">Sd</option>
+                {graduations &&
+                  graduations.length > 0 &&
+                  graduations.map((g) => (
+                    <option key={g.id} value={g.id}>
+                      {g.name}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>
@@ -261,12 +263,12 @@ const Efetivo = () => {
             <div className="flex-1">
               <input
                 className="w-full p-1 border border-gray-800 rounded-md focus:outline-none"
-                type="text"
+                type="number"
                 id="rg"
                 onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                  setRg(event.target.value)
+                  setRg(event.target.valueAsNumber)
                 }
-                value={rg}
+                value={rg ? rg : ""}
               />
             </div>
           </div>
@@ -325,14 +327,14 @@ const Efetivo = () => {
           id="corpo"
           className="border-l border-r border-gray-800 rounded-b-md"
         >
-          {military ? (
+          {military && military.length > 0 ? (
             military.map((m) => (
               <div
                 key={m.id}
                 className="flex border-b border-gray-800 last:rounded-b-md"
               >
                 <div className="w-2/3 px-2 py-1 border-r border-r-gray-800">
-                  {m.graduation} {m.rg} {m.name}
+                  {m.graduation?.name} {m.rg} {m.name}
                 </div>
                 <div className="flex items-center justify-center w-1/3 px-2 py-1">
                   <button className="pr-1" onClick={() => handleEdit(m)}>

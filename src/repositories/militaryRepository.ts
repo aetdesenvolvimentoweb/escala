@@ -8,7 +8,18 @@ export const createMilitary = async (
   await connectDB();
 
   const military = await prisma.military.create({
-    data,
+    data: {
+      name: data.name,
+      rg: data.rg,
+      graduation: {
+        connect: {
+          id: data.graduationId,
+        },
+      },
+    },
+    include: {
+      graduation: true,
+    },
   });
 
   await disconnectDB();
@@ -52,7 +63,19 @@ export const listAllMilitary = async (): Promise<IMilitaryDTO[]> => {
   await connectDB();
 
   const military = await prisma.military.findMany({
+    select: {
+      id: true,
+      graduation: true,
+      graduationId: true,
+      rg: true,
+      name: true,
+    },
     orderBy: [
+      {
+        graduation: {
+          order: "asc",
+        },
+      },
       {
         name: "asc",
       },

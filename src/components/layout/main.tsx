@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Image from "next/image";
 import { ReactNode } from "react";
 
 interface IMainLayoutProps {
@@ -7,13 +8,13 @@ interface IMainLayoutProps {
 }
 
 const MainLayout = ({ children, title }: IMainLayoutProps) => {
-  const pageTitle = `Resumo do Serviço > ${title}`;
+  const pageTitle = `Resumo Diário > ${title}`;
 
   return (
     <div id="mainContainer" className="bg-gray-200">
       <div className="flex flex-col max-w-xs min-h-screen mx-auto">
         <Head>
-          <title>Mapa Força - 18º BBM</title>
+          <title>Resumo Diário - 18º BBM</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <meta
             name="description"
@@ -21,14 +22,27 @@ const MainLayout = ({ children, title }: IMainLayoutProps) => {
           />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <header className="flex items-center justify-between px-3 py-4 text-white bg-red-800">
-          Mapa Força
+        <header className="flex items-center justify-between text-white bg-red-800">
+          <div className="p-2 bg-white border-l border-l-red-800">
+            <div className="relative w-24 h-16">
+              <Image
+                src={"/images/fenix.jpeg"}
+                fill
+                sizes="auto, auto"
+                alt="logomarca bombeiros"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col items-center justify-center w-full text-sm">
+            <h1 className="text-base font-bold">Resumo Diário</h1>
+            <span>18º Batalhão Bombeiro Militar</span>
+          </div>
         </header>
         <main className="flex-1 p-2 bg-red-600">
-          <h1 className="p-2 mb-2 text-sm font-bold text-gray-800 rounded-md bg-gray-50">
+          <h1 className="p-2 text-sm font-bold text-gray-800 rounded-md bg-gray-50">
             {pageTitle}
           </h1>
-          <div className="p-2 text-sm text-gray-800 rounded-md bg-gray-50">
+          <div className="p-2 mt-2 text-sm text-gray-800 rounded-md bg-gray-50">
             {children}
           </div>
         </main>

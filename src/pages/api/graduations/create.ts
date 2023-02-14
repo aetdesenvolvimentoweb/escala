@@ -1,13 +1,14 @@
-import { IVehicleDTO } from "@/dtos/IVehicleDTO";
+import { IGraduationDTO } from "@/dtos/IGraduationDTO";
 import {
-  createVehicle,
-  listVehicleByName,
-} from "@/repositories/vehiclesRepository";
+  createGraduation,
+  listAllGraduations,
+  listGraduationByName,
+} from "@/repositories/graduationsRepository";
 import { NextApiRequest, NextApiResponse } from "next";
 
 interface IResponseData {
   success: boolean;
-  vehicle?: IVehicleDTO;
+  graduation?: IGraduationDTO;
   error?: string;
 }
 
@@ -24,19 +25,24 @@ const handler = async (
           throw new Error("Campos obrigatórios não foram preenchidos.");
         }
 
-        const vehicleAlreadyExist = await listVehicleByName(name);
+        const graduationAlreadyExist = await listGraduationByName(name);
 
-        if (vehicleAlreadyExist) {
-          throw new Error("Já existe uma viatura cadastrada com esse nome.");
+        if (graduationAlreadyExist) {
+          throw new Error("Já existe uma graduação cadastrada com esse nome.");
         }
 
-        const vehicle = await createVehicle({ name });
+        const graduations = await listAllGraduations();
 
-        if (!vehicle) {
-          throw new Error("Erro ao cadastrar viatura.");
+        const graduation = await createGraduation({
+          order: graduations.length + 1,
+          name,
+        });
+
+        if (!graduation) {
+          throw new Error("Erro ao cadastrar graduação.");
         }
 
-        res.status(201).json({ success: true, vehicle });
+        res.status(201).json({ success: true, graduation });
       } catch (err: any) {
         res
           .status(400)

@@ -1,4 +1,5 @@
 import { IMilitaryDTO } from "@/dtos/IMilitaryDTO";
+import { listGraduationById } from "@/repositories/graduationsRepository";
 import {
   createMilitary,
   listMilitaryByRG,
@@ -18,9 +19,9 @@ const handler = async (
   switch (req.method) {
     case "POST":
       try {
-        const { graduation, rg, name } = JSON.parse(req.body);
+        const { graduationId, rg, name } = JSON.parse(req.body);
 
-        if (!graduation || !rg || !name) {
+        if (!graduationId || !rg || !name) {
           throw new Error("Campos obrigatórios não foram preenchidos.");
         }
 
@@ -30,7 +31,13 @@ const handler = async (
           throw new Error("Já existe um militar cadastrado com esse RG.");
         }
 
-        const military = await createMilitary({ graduation, rg, name });
+        const graduation = await listGraduationById(graduationId);
+
+        const military = await createMilitary({
+          graduationId,
+          rg,
+          name,
+        });
 
         if (!military) {
           throw new Error("Erro ao cadastrar militar.");

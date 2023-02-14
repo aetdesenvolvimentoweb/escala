@@ -1,9 +1,12 @@
+import { IGraduationDTO } from "./IGraduationDTO";
+
 export interface IMilitaryCreateDTO {
-  graduation: string;
+  graduationId: string;
   rg: number;
   name: string;
 }
 
 export interface IMilitaryDTO extends IMilitaryCreateDTO {
   id: string;
+  graduation?: IGraduationDTO;
 }

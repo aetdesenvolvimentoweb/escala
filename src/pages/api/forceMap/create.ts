@@ -1,4 +1,17 @@
-import { IForceMapDTO } from "@/dtos/IForceMapDTO";
+import { IForceMapCreateDTO, IForceMapDTO } from "@/dtos/IForceMapDTO";
+import {
+  IGarrisonCreateDTO,
+  IGarrisonDTO,
+  IMilitaryInGarrisonCreateDTO,
+} from "@/dtos/IGarrisonDTO";
+import { IServiceExchangeCreateDTO } from "@/dtos/IServiceExchange";
+import { createForceMap } from "@/repositories/forceMapRepository";
+import {
+  createGarrison,
+  listGarrisonByVehicleAndMilitary,
+} from "@/repositories/garrisonsRepository";
+import { createMilitaryInGarrison } from "@/repositories/militaryInGarrisonRepository";
+import { createServiceExchange } from "@/repositories/serviceExchangesRepository";
 import { NextApiRequest, NextApiResponse } from "next";
 
 interface IResponseData {
@@ -14,25 +27,64 @@ const handler = async (
   switch (req.method) {
     case "POST":
       try {
-        const { standbyOfficer, adjunct, garrisons, serviceExchanges } =
-          JSON.parse(req.body);
+        const {
+          initialOfService,
+          standbyOfficerId,
+          adjunctId,
+          garrisonsCreate,
+          garrisonsIds,
+          serviceExchangesCreate,
+          serviceExchangesIds,
+        } = JSON.parse(req.body);
 
         if (
-          !standbyOfficer ||
-          !adjunct ||
-          garrisons.length < 0 ||
-          !serviceExchanges
+          !initialOfService ||
+          !standbyOfficerId ||
+          !adjunctId ||
+          !garrisonsCreate ||
+          garrisonsCreate.length <= 0
         ) {
           throw new Error("Campos obrigatórios não foram preenchidos.");
         }
 
-        /* const forceMap = await createForceMap(req.body); */
+        let militaryIds: string[] = [];
+        let vehiclesIds: string[] = [];
 
-        /* if (!forceMap) {
-          throw new Error("Erro ao cadastrar mapa força.");
-        } */
+        await Promise.all(
+          garrisonsCreate.map((g: IGarrisonCreateDTO) => {
+            g.militaryInGarrisonCreate?.map(
+              (m: IMilitaryInGarrisonCreateDTO) => {
+                militaryIds = [...militaryIds, m.militaryId];
+              }
+            );
+            vehiclesIds = [...vehiclesIds, g.vehicleId];
+          })
+        );
 
-        res.status(201).json({ success: true }); //incluir mapa força na resposta
+        const garrisonAlreadyExist = await listGarrisonByVehicleAndMilitary(
+          vehiclesIds,
+          militaryIds
+        );
+
+        if (garrisonAlreadyExist) {
+          throw new Error(
+            "Já existe uma guarnição cadastrada com essa viatura ou algum desses militares."
+          );
+        }
+
+        const data: IForceMapCreateDTO = {
+          initialOfService,
+          standbyOfficerId,
+          adjunctId,
+          garrisonsCreate,
+          garrisonsIds,
+          serviceExchangesCreate,
+          serviceExchangesIds,
+        };
+
+        const forceMap = await createForceMap(data);
+
+        res.status(201).json({ success: true /* forceMap */ });
       } catch (err: any) {
         res
           .status(400)

@@ -12,18 +12,28 @@ import {
 import { FaExchangeAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import Loading from "@/components/layout/loading";
-import { IGarrisonCreateDTO } from "@/dtos/IGarrisonDTO";
+import {
+  IGarrisonCreateDTO,
+  IMilitaryInGarrisonCreateDTO,
+} from "@/dtos/IGarrisonDTO";
 import { IServiceExchangeCreateDTO } from "@/dtos/IServiceExchange";
 import { IForceMapCreateDTO } from "@/dtos/IForceMapDTO";
+import { useRouter } from "next/router";
 
 const Garrison = () => {
+  const router = useRouter();
+
   const [vehicles, setVehicles] = useState<IVehicleDTO[]>([] as IVehicleDTO[]);
   const [military, setMilitary] = useState<IMilitaryDTO[]>(
     [] as IMilitaryDTO[]
   );
   const [militarySelected, setMilitarySelected] = useState<string>("");
+  const [scaleType, setScaleType] = useState<string>("");
   const [vehicleSelected, setVehicleSelected] = useState<string>("");
-  const [militaryInGarrison, setMilitaryInGarrison] = useState<string[]>(
+  const [militaryInGarrison, setMilitaryInGarrison] = useState<
+    IMilitaryInGarrisonCreateDTO[]
+  >([] as IMilitaryInGarrisonCreateDTO[]);
+  const [militaryInGarrisonIds, setMilitaryInGarrisonIds] = useState<string[]>(
     [] as string[]
   );
   const [vehicleInGarrison, setVehicleInGarrison] = useState<string>("");
@@ -39,10 +49,7 @@ const Garrison = () => {
   const [serviceExchanges, setServiceExchanges] = useState<
     IServiceExchangeCreateDTO[]
   >([] as IServiceExchangeCreateDTO[]);
-  const [forceMap, setForceMap] = useState<IForceMapCreateDTO | null>(null);
 
-  const [searched, setSearched] = useState<string>("");
-  const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
   const [showFormOficial, setShowFormOficial] = useState<boolean>(false);
   const [showFormAdjunto, setShowFormAdjunto] = useState<boolean>(false);
@@ -53,6 +60,7 @@ const Garrison = () => {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
+
       const dataVehicles = await fetch("/api/vehicles/listAll", {
         method: "GET",
       }).then(async (res) => res.json());
@@ -98,7 +106,6 @@ const Garrison = () => {
   };
 
   const handleCancel = () => {
-    setPage(1);
     setMilitarySelected("");
     setShowFormOficial(false);
     setShowFormAdjunto(false);
@@ -108,23 +115,67 @@ const Garrison = () => {
     setMilitaryInGarrison([]);
   };
 
+  const handleClearForceMap = () => {
+    handleCancel();
+    setStandbyOfficer("");
+    setAdjunct("");
+    setGarrisons([] as IGarrisonCreateDTO[]);
+    setServiceExchanges([] as IServiceExchangeCreateDTO[]);
+  };
+
   const handleAddVehicleInGarrison = () => {
     if (vehicleSelected) {
       setVehicleInGarrison(vehicleSelected);
       setVehicleSelected("");
     } else {
       toast.error("Selecione a viatura.");
-      document.getElementById("vehicles")?.focus();
+      document.getElementById("vehicleInGarrison")?.focus();
     }
   };
 
-  const handleAddMilitaryInGarrison = () => {
-    if (militarySelected) {
-      setMilitaryInGarrison([...militaryInGarrison, militarySelected]);
-      setMilitarySelected("");
+  const handleRemoveVehicleOfGarrison = (id: string) => {
+    if (vehicleInGarrison && vehicleInGarrison === id) {
+      setVehicleInGarrison("");
     } else {
-      toast.error("Selecione o militar.");
-      document.getElementById("military")?.focus();
+      toast.error("Viatura não encontrada na guarnição.");
+      document.getElementById("vehicleInGarrison")?.focus();
+    }
+  };
+
+  const handleAddMilitaryInGarrison = async () => {
+    if (militarySelected && scaleType) {
+      setLoading(true);
+
+      setLoading(false);
+
+      setMilitaryInGarrison([
+        ...militaryInGarrison,
+        { militaryId: militarySelected, scaleType: scaleType },
+      ]);
+      setMilitaryInGarrisonIds([...militaryInGarrisonIds, militarySelected]);
+
+      setMilitarySelected("");
+      setScaleType("");
+    } else {
+      if (!militarySelected) {
+        toast.error("Selecione o militar.");
+        document.getElementById("militaryInGarrison")?.focus();
+      }
+      if (!scaleType) {
+        toast.error("Selecione o tipo da escala.");
+        document.getElementById("scaleType")?.focus();
+      }
+    }
+  };
+
+  const handleRemoveMilitaryOfGarrison = (id: string) => {
+    if (militaryInGarrison.length > 0) {
+      setMilitaryInGarrison(
+        militaryInGarrison.filter((m) => m.militaryId !== id)
+      );
+    } else {
+      toast.error("Militar não encontrado na guarnição.");
+      document.getElementById("militaryInGarrison")?.focus();
     }
   };
 
@@ -150,17 +201,31 @@ const Garrison = () => {
     }
   };
 
-  const handleAddGarrisonToForceMap = (event: FormEvent) => {
+  const handleAddGarrisonToForceMap = async (event: FormEvent) => {
     event.preventDefault();
     if (vehicleInGarrison && militaryInGarrison.length > 0) {
+      setLoading(true);
+
       setGarrisons([
         ...garrisons,
-        { vehicle: vehicleInGarrison, military: militaryInGarrison },
+        {
+          vehicleId: vehicleInGarrison,
+          militaryInGarrisonCreate: militaryInGarrison,
+          militaryInGarrisonIds: militaryInGarrisonIds,
+        },
       ]);
+
+      setLoading(false);
       handleCancel();
     } else {
-      toast.error("Selecione o adjunto.");
-      document.getElementById("adjunct")?.focus();
+      if (!vehicleInGarrison) {
+        toast.error("Insira uma viatura na guarnição.");
+        document.getElementById("vehicleInGarrison")?.focus();
+      }
+      if (militaryInGarrison.length < 1) {
+        toast.error("Insira militares na guarnição.");
+        document.getElementById("militaryInGarrison")?.focus();
+      }
     }
   };
 
@@ -193,7 +258,12 @@ const Garrison = () => {
 
     setServiceExchanges([
       ...serviceExchanges,
-      { replaced, substitute, initial: initialService, final: finalService },
+      {
+        replacedId: replaced,
+        substituteId: substitute,
+        initial: initialService,
+        final: finalService,
+      },
     ]);
 
     setReplaced("");
@@ -203,7 +273,7 @@ const Garrison = () => {
     setShowFormTrocaDeServico(false);
   };
 
-  const handleSubmitForceMap = (event: FormEvent) => {
+  const handleSubmitForceMap = async (event: FormEvent) => {
     event.preventDefault();
 
     if (!standbyOfficer) {
@@ -222,13 +292,30 @@ const Garrison = () => {
     }
 
     const data: IForceMapCreateDTO = {
-      standbyOfficer,
-      adjunct,
-      garrisons,
-      serviceExchanges,
+      initialOfService: new Date(),
+      standbyOfficerId: standbyOfficer,
+      adjunctId: adjunct,
+      garrisonsCreate: garrisons,
+      garrisonsIds: [],
+      serviceExchangesCreate: serviceExchanges,
+      serviceExchangesIds: [],
     };
 
-    console.log("dados finais do mapa força", data);
+    setLoading(true);
+
+    const response = await fetch("/api/forceMap/create", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }).then(async (res) => await res.json());
+
+    if (response.success) {
+      toast.success("Resumo cadastrado com sucesso.");
+      router.push("/");
+    } else {
+      toast.error(response.error);
+    }
+
+    setLoading(false);
   };
 
   const renderButtonsForm = () => {
@@ -260,36 +347,56 @@ const Garrison = () => {
       <div>
         <div className={"flex items-center justify-between"}>
           <button
-            className="px-4 py-1 font-bold text-white bg-blue-600 rounded-md outline-none"
+            className="p-2 font-bold text-white bg-blue-600 rounded-md outline-none"
             aria-label="Oficial de sobreaviso"
             title="Oficial de sobreaviso"
             onClick={handleShowFormOficialDeSobreaviso}
           >
-            <FiStar size={20} />
+            <div className="flex flex-col items-center justify-center">
+              <div className="mb-1">
+                <FiStar size={20} />
+              </div>
+              <span className="text-xs">oficial</span>
+            </div>
           </button>
           <button
-            className="px-4 py-1 font-bold text-white bg-blue-600 rounded-md outline-none"
+            className="p-2 font-bold text-white bg-blue-600 rounded-md outline-none"
             aria-label="Adjunto"
             title="Adjunto"
             onClick={handleShowFormAdjunto}
           >
-            <FiChevronsDown size={20} />
+            <div className="flex flex-col items-center justify-center">
+              <div className="mb-1">
+                <FiChevronsDown size={20} />
+              </div>
+              <span className="text-xs">adjunto</span>
+            </div>
           </button>
           <button
-            className="px-4 py-1 font-bold text-white bg-blue-600 rounded-md outline-none"
+            className="p-2 font-bold text-white bg-blue-600 rounded-md outline-none"
             aria-label="Guarnição"
             title="Guarnição"
             onClick={handleShowFormGuarnicao}
           >
-            <FiUsers size={20} />
+            <div className="flex flex-col items-center justify-center">
+              <div className="mb-1">
+                <FiUsers size={20} />
+              </div>
+              <span className="text-xs">guarnições</span>
+            </div>
           </button>
           <button
-            className="px-4 py-1 font-bold text-white bg-blue-600 rounded-md outline-none"
+            className="p-2 font-bold text-white bg-blue-600 rounded-md outline-none"
             aria-label="Troca de serviço"
             title="Troca de serviço"
             onClick={handleShowFormTrocaDeServico}
           >
-            <FaExchangeAlt size={20} />
+            <div className="flex flex-col items-center justify-center">
+              <div className="mb-1">
+                <FaExchangeAlt size={20} />
+              </div>
+              <span className="text-xs">trocas</span>
+            </div>
           </button>
         </div>
       </div>
@@ -305,7 +412,10 @@ const Garrison = () => {
           className="w-full p-2 text-sm border border-gray-800 rounded-md"
           onSubmit={handleAddStandbyOfficerToForceMap}
         >
-          <div className="flex items-center justify-between mb-2">
+          <div>
+            <h2 className="font-bold text-center">Oficial de Sobreaviso</h2>
+          </div>
+          <div className="flex items-center justify-between mt-2">
             <div className="flex-1 pr-1">
               <select
                 id="standbyOfficer"
@@ -316,11 +426,15 @@ const Garrison = () => {
                 value={militarySelected}
               >
                 <option value="">Selecione</option>
-                {military.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.graduation} {m.rg} {m.name}
-                  </option>
-                ))}
+                {military.map((m) => {
+                  if (m.graduation && m.graduation.order < 8) {
+                    return (
+                      <option key={m.id} value={m.id}>
+                        {`${m.graduation?.name} ${m.rg} ${m.name}`}
+                      </option>
+                    );
+                  }
+                })}
               </select>
             </div>
           </div>
@@ -340,7 +454,10 @@ const Garrison = () => {
           className="w-full p-2 text-sm border border-gray-800 rounded-md"
           onSubmit={handleAddAdjunctToForceMap}
         >
-          <div className="flex items-center justify-between mb-2">
+          <div>
+            <h2 className="font-bold text-center">Adjunto</h2>
+          </div>
+          <div className="flex items-center justify-between mt-2">
             <div className="flex-1 pr-1">
               <select
                 id="adjunct"
@@ -351,11 +468,15 @@ const Garrison = () => {
                 value={militarySelected}
               >
                 <option value="">Selecione</option>
-                {military.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.graduation} {m.rg} {m.name}
-                  </option>
-                ))}
+                {military.map((m) => {
+                  if (m.graduation && m.graduation.order > 7) {
+                    return (
+                      <option key={m.id} value={m.id}>
+                        {`${m.graduation?.name} ${m.rg} ${m.name}`}
+                      </option>
+                    );
+                  }
+                })}
               </select>
             </div>
           </div>
@@ -375,13 +496,16 @@ const Garrison = () => {
           className="w-full p-2 text-sm border border-gray-800 rounded-md"
           onSubmit={handleAddGarrisonToForceMap}
         >
-          <div className="flex items-center mb-2">
+          <div>
+            <h2 className="font-bold text-center">Guarnição</h2>
+          </div>
+          <div className="flex items-center mt-2">
             <div className="pr-1">
-              <label htmlFor="vehicles">Viatura:</label>
+              <label htmlFor="vehicleInGarrison">Viatura:</label>
             </div>
             <div className="flex-1 pr-1">
               <select
-                id="vehicles"
+                id="vehicleInGarrison"
                 className="w-full p-1 bg-white border border-gray-800 rounded-md focus:outline-none"
                 disabled={vehicleInGarrison.length > 0}
                 onChange={(event: ChangeEvent<HTMLSelectElement>) =>
@@ -394,7 +518,9 @@ const Garrison = () => {
                   <option
                     disabled={
                       vehicleInGarrison === v.id ||
-                      garrisons.filter((g) => g.vehicle === v.id).length > 0
+                      (garrisons &&
+                        garrisons.filter((g) => g.vehicleId === v.id).length >
+                          0)
                     }
                     key={v.id}
                     value={v.id}
@@ -422,13 +548,13 @@ const Garrison = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mt-2">
             <div className="pr-1">
-              <label htmlFor="military">Militar:</label>
+              <label htmlFor="militaryInGarrison">Militar:</label>
             </div>
             <div className="flex-1 pr-1">
               <select
-                id="military"
+                id="militaryInGarrison"
                 className="w-full p-1 bg-white border border-gray-800 rounded-md focus:outline-none"
                 onChange={(event: ChangeEvent<HTMLSelectElement>) =>
                   setMilitarySelected(event.target.value)
@@ -439,17 +565,32 @@ const Garrison = () => {
                 <option value="">Selecione</option>
                 {military.map((m) => (
                   <option
-                    disabled={
-                      militaryInGarrison.includes(m.id) ||
-                      garrisons.filter((g) => g.military.includes(m.id))
-                        .length > 0
-                    }
                     key={m.id}
+                    disabled={
+                      JSON.stringify(militaryInGarrison).includes(m.id) ||
+                      (garrisons && JSON.stringify(garrisons).includes(m.id))
+                    }
                     value={m.id}
                   >
-                    {m.graduation} {m.rg} {m.name}
+                    {`${m.graduation?.name} ${m.rg} ${m.name}`}
                   </option>
                 ))}
+              </select>
+            </div>
+            <div className="pr-1">
+              <select
+                id="scaleType"
+                className="w-full p-1 bg-white border border-gray-800 rounded-md focus:outline-none"
+                disabled={!militarySelected}
+                onChange={(event: ChangeEvent<HTMLSelectElement>) =>
+                  setScaleType(event.target.value)
+                }
+                value={scaleType}
+              >
+                <option value="">Selecione</option>
+                <option value="Ordinaria">Ordinária</option>
+                <option value="AC-4">AC-4</option>
+                <option value="Prefeitura">Prefeitura</option>
               </select>
             </div>
             <div>
@@ -470,7 +611,7 @@ const Garrison = () => {
           </div>
 
           {(militaryInGarrison.length > 0 || vehicleInGarrison) && (
-            <div className="p-2 mb-2 text-white bg-red-600 rounded-md">
+            <div className="p-2 mt-2 text-white bg-red-600 rounded-md">
               <div>
                 {vehicles &&
                   vehicleInGarrison &&
@@ -482,6 +623,7 @@ const Garrison = () => {
                           <button
                             className="text-white focus:outline-none"
                             type="button"
+                            onClick={() => handleRemoveVehicleOfGarrison(v.id)}
                           >
                             <FiMinusCircle size={20} />
                           </button>
@@ -495,13 +637,23 @@ const Garrison = () => {
                   militaryInGarrison &&
                   military.map((m) => {
                     return militaryInGarrison.map((mig) => {
-                      if (mig === m.id) {
+                      if (mig.militaryId === m.id) {
                         return (
                           <div className="flex pt-1 pl-2" key={m.id}>
                             <span className="pr-1">
-                              {m.graduation} {m.rg} {m.name}
+                              {`${m.graduation?.name} ${m.rg} ${m.name} ${
+                                mig.scaleType !== "Ordinaria"
+                                  ? `(${mig.scaleType})`
+                                  : ""
+                              }`}
                             </span>
-                            <button className="flex text-white" type="button">
+                            <button
+                              className="flex text-white"
+                              type="button"
+                              onClick={() =>
+                                handleRemoveMilitaryOfGarrison(m.id)
+                              }
+                            >
                               <FiMinusCircle size={20} />
                             </button>
                           </div>
@@ -528,7 +680,9 @@ const Garrison = () => {
           className="w-full p-2 text-sm border border-gray-800 rounded-md"
           onSubmit={handleAddServiceExchangesToForceMap}
         >
-          <div className="font-bold">Troca de Serviço</div>
+          <div>
+            <h2 className="font-bold text-center">Troca de Serviço</h2>
+          </div>
           <div className="flex items-center justify-between mt-3">
             <div className="pr-1">
               <label htmlFor="replaced">Substituído:</label>
@@ -549,7 +703,7 @@ const Garrison = () => {
                     key={m.id}
                     value={m.id}
                   >
-                    {m.graduation} {m.rg} {m.name}
+                    {`${m.graduation?.name} ${m.rg} ${m.name}`}
                   </option>
                 ))}
               </select>
@@ -572,7 +726,7 @@ const Garrison = () => {
                 <option value="">Selecione</option>
                 {military.map((m) => (
                   <option key={m.id} disabled={replaced === m.id} value={m.id}>
-                    {m.graduation} {m.rg} {m.name}
+                    {`${m.graduation?.name} ${m.rg} ${m.name}`}
                   </option>
                 ))}
               </select>
@@ -625,9 +779,9 @@ const Garrison = () => {
       {/* início do mapa força */}
       {(standbyOfficer ||
         adjunct ||
-        garrisons.length > 0 ||
-        serviceExchanges.length > 0) && (
-        <div className="mt-6">
+        (garrisons && garrisons.length > 0) ||
+        (serviceExchanges && serviceExchanges.length > 0)) && (
+        <div className="mt-4">
           <form
             className="w-full p-2 text-sm border border-gray-800 rounded-md"
             onSubmit={handleSubmitForceMap}
@@ -643,7 +797,7 @@ const Garrison = () => {
                   if (m.id === standbyOfficer) {
                     return (
                       <span key={m.id}>
-                        {m.graduation} {m.rg} {m.name}
+                        {`${m.graduation?.name} ${m.rg} ${m.name}`}
                       </span>
                     );
                   }
@@ -657,7 +811,7 @@ const Garrison = () => {
                   if (m.id === adjunct) {
                     return (
                       <span key={m.id}>
-                        {m.graduation} {m.rg} {m.name}
+                        {`${m.graduation?.name} ${m.rg} ${m.name}`}
                       </span>
                     );
                   }
@@ -669,7 +823,7 @@ const Garrison = () => {
               {garrisons &&
                 garrisons.map((g) => {
                   return vehicles.map((v) => {
-                    if (v.id === g.vehicle) {
+                    if (v.id === g.vehicleId) {
                       return (
                         <div
                           className="p-1 mb-2 border border-gray-800 rounded-md"
@@ -677,17 +831,24 @@ const Garrison = () => {
                         >
                           <span className="block font-bold">{v.name}</span>
                           <div className="flex flex-col pl-4">
-                            {g.military.map((gm) => {
-                              return military.map((m) => {
-                                if (gm === m.id) {
-                                  return (
-                                    <span key={m.id}>
-                                      {m.graduation} {m.rg} {m.name}
-                                    </span>
-                                  );
-                                }
-                              });
-                            })}
+                            {g.militaryInGarrisonCreate &&
+                              g.militaryInGarrisonCreate.map((gm) => {
+                                return military.map((m) => {
+                                  if (gm.militaryId === m.id) {
+                                    return (
+                                      <div key={m.id}>
+                                        <span className="pr-1">
+                                          {`${m.graduation?.name} ${m.rg} ${m.name}`}
+                                        </span>
+                                        <strong className="text-red-600">
+                                          {gm.scaleType !== "Ordinaria" &&
+                                            `(${gm.scaleType})`}
+                                        </strong>
+                                      </div>
+                                    );
+                                  }
+                                });
+                              })}
                           </div>
                         </div>
                       );
@@ -702,16 +863,16 @@ const Garrison = () => {
                 serviceExchanges.map((s, index) => {
                   return (
                     <div
-                      key={s.replaced + index}
+                      key={s.replacedId + index}
                       className="flex flex-col p-1 mb-2 border border-gray-800 rounded-md"
                     >
                       <div>
                         <span className="pr-1 font-bold">Substituído:</span>
                         {military.map((m) => {
-                          if (m.id === s.replaced) {
+                          if (m.id === s.replacedId) {
                             return (
                               <span key={m.id}>
-                                {m.graduation} {m.rg} {m.name}
+                                {`${m.graduation?.name} ${m.rg} ${m.name}`}
                               </span>
                             );
                           }
@@ -720,10 +881,10 @@ const Garrison = () => {
                       <div>
                         <span className="pr-1 font-bold">Substituto:</span>
                         {military.map((m) => {
-                          if (m.id === s.substitute) {
+                          if (m.id === s.substituteId) {
                             return (
                               <span key={m.id}>
-                                {m.graduation} {m.rg} {m.name}
+                                {`${m.graduation?.name} ${m.rg} ${m.name}`}
                               </span>
                             );
                           }
@@ -742,7 +903,21 @@ const Garrison = () => {
                 })}
             </div>
 
-            {renderButtonsForm()}
+            <div className="flex items-center mt-4">
+              <button
+                className="w-1/2 px-6 py-2 mr-1 font-bold text-gray-800 bg-transparent border-gray-800 rounded-md outline-none focus:border hover:border mr1"
+                type="button"
+                onClick={handleClearForceMap}
+              >
+                Cancelar
+              </button>
+              <button
+                className="w-1/2 px-6 py-2 mr-1 font-bold text-white bg-green-600 border border-gray-800 rounded-md outline-none mr1"
+                type="submit"
+              >
+                Salvar
+              </button>
+            </div>
           </form>
         </div>
       )}

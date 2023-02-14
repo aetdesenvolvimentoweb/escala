@@ -1,21 +1,46 @@
-import { IVehicleCreateDTO, IVehicleDTO } from "@/dtos/IVehicleDTO";
+import {
+  IServiceExchangeCreateDTO,
+  IServiceExchangeDTO,
+} from "@/dtos/IServiceExchange";
 import prisma from "@/lib/prismaDB";
 import { connectDB, disconnectDB } from "@/utils/connectionDB";
 
-export const createVehicle = async (
-  data: IVehicleCreateDTO
-): Promise<IVehicleDTO> => {
+export const createServiceExchange = async (
+  data: IServiceExchangeCreateDTO
+): Promise<IServiceExchangeDTO> => {
   await connectDB();
 
-  const vehicle = await prisma.vehicle.create({
-    data,
+  const serviceExchange = await prisma.serviceExchange.create({
+    data: {
+      replaced: {
+        connect: {
+          id: data.replacedId,
+        },
+      },
+      substitute: {
+        connect: {
+          id: data.substituteId,
+        },
+      },
+      initial: data.initial,
+      final: data.final,
+    },
   });
 
   await disconnectDB();
 
-  return vehicle;
+  return serviceExchange;
 };
 
+export const deleteAllServiceExchanges = async (): Promise<void> => {
+  await connectDB();
+
+  await prisma.serviceExchange.deleteMany();
+
+  await disconnectDB();
+};
+
+/*
 export const listVehicleById = async (
   id: string
 ): Promise<IVehicleDTO | null> => {
@@ -85,4 +110,4 @@ export const deleteVehicle = async (id: string): Promise<void> => {
   });
 
   await disconnectDB();
-};
+}; */

@@ -1,10 +1,10 @@
-import { IMilitaryDTO } from "@/dtos/IMilitaryDTO";
-import { listAllMilitary } from "@/repositories/militaryRepository";
+import { IForceMapDTO } from "@/dtos/IForceMapDTO";
+import { listAllForceMaps } from "@/repositories/forceMapRepository";
 import { NextApiRequest, NextApiResponse } from "next";
 
 interface IResponseData {
   success: boolean;
-  military?: IMilitaryDTO[];
+  forceMap?: IForceMapDTO[];
   error?: string;
 }
 
@@ -15,9 +15,11 @@ const handler = async (
   switch (req.method) {
     case "GET":
       try {
-        const military = await listAllMilitary();
+        console.log("dentro api listall force map");
 
-        res.status(201).json({ success: true, military });
+        const forceMap = await listAllForceMaps();
+
+        res.status(201).json({ success: true, forceMap });
       } catch (err: any) {
         res
           .status(400)

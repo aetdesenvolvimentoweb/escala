@@ -6,11 +6,23 @@ export const createGarrison = async (
   data: IGarrisonCreateDTO
 ): Promise<IGarrisonDTO> => {
   await connectDB();
-
   const garrison = await prisma.garrison.create({
     data: {
-      militaryIds: data.militaryIds,
-      vehiclesIds: data.vehiclesIds,
+      vehicle: {
+        connect: {
+          id: data.vehicleId,
+        },
+      },
+      militaryInGarrison: {
+        create: data.militaryInGarrisonCreate?.map((m) => ({
+          militaryId: m.militaryId,
+          scaleType: m.scaleType,
+        })),
+      },
+    },
+    include: {
+      vehicle: true,
+      militaryInGarrison: true,
     },
   });
 
@@ -19,14 +31,33 @@ export const createGarrison = async (
   return garrison;
 };
 
-export const listGarrisonById = async (
-  id: string
+export const listGarrisonByVehicleAndMilitary = async (
+  vehiclesIds: string[],
+  militaryInGarrisonIds: string[]
 ): Promise<IGarrisonDTO | null> => {
   await connectDB();
 
   const garrison = await prisma.garrison.findFirst({
     where: {
-      id,
+      OR: [
+        {
+          vehicleId: {
+            in: vehiclesIds,
+          },
+        },
+        {
+          militaryInGarrison: {
+            some: {
+              militaryId: {
+                in: militaryInGarrisonIds,
+              },
+            },
+          },
+        },
+      ],
+    },
+    include: {
+      militaryInGarrison: true,
     },
   });
 
@@ -38,12 +69,28 @@ export const listGarrisonById = async (
 export const listAllGarrisons = async (): Promise<IGarrisonDTO[]> => {
   await connectDB();
 
-  const garrisons = await prisma.garrison.findMany({});
+  console.log("dentro repository garrison");
+
+  const garrisons = await prisma.garrison.findMany({
+    include: {
+      militaryInGarrison: true,
+      vehicle: true,
+    },
+  });
+  console.log(garrisons);
 
   return garrisons;
 };
 
-export const updateGarrison = async (id: string, data: IGarrisonCreateDTO) => {
+export const deleteAllGarrisons = async (): Promise<void> => {
+  await connectDB();
+
+  await prisma.garrison.deleteMany();
+
+  await disconnectDB();
+};
+
+/* export const updateGarrison = async (id: string, data: IGarrisonCreateDTO) => {
   await connectDB();
 
   await prisma.garrison.update({
@@ -66,4 +113,4 @@ export const deleteGarrison = async (id: string): Promise<void> => {
   });
 
   await disconnectDB();
-};
+}; */

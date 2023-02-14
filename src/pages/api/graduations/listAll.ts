@@ -1,10 +1,10 @@
-import { IVehicleDTO } from "@/dtos/IVehicleDTO";
-import { listAllVehicles } from "@/repositories/vehiclesRepository";
+import { IGraduationDTO } from "@/dtos/IGraduationDTO";
+import { listAllGraduations } from "@/repositories/graduationsRepository";
 import { NextApiRequest, NextApiResponse } from "next";
 
 interface IResponseData {
   success: boolean;
-  vehicles?: IVehicleDTO[];
+  graduations?: IGraduationDTO[];
   error?: string;
 }
 
@@ -15,9 +15,9 @@ const handler = async (
   switch (req.method) {
     case "GET":
       try {
-        const vehicles = await listAllVehicles();
+        const graduations = await listAllGraduations();
 
-        res.status(201).json({ success: true, vehicles });
+        res.status(201).json({ success: true, graduations });
       } catch (err: any) {
         res
           .status(400)
