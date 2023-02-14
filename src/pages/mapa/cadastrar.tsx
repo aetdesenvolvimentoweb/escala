@@ -787,7 +787,7 @@ const Garrison = () => {
             onSubmit={handleSubmitForceMap}
           >
             <h2 className="mb-2 font-bold uppercase">
-              Mapa Força em Desenvolvimento
+              Resumo em Desenvolvimento
             </h2>
             <div>
               <span className="pr-1 font-bold">Oficial de dia:</span>

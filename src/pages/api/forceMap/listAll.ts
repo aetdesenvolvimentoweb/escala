@@ -15,8 +15,6 @@ const handler = async (
   switch (req.method) {
     case "GET":
       try {
-        console.log("dentro api listall force map");
-
         const forceMap = await listAllForceMaps();
 
         res.status(201).json({ success: true, forceMap });

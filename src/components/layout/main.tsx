@@ -18,7 +18,7 @@ const MainLayout = ({ children, title }: IMainLayoutProps) => {
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <meta
             name="description"
-            content="Aplicação para gerar e acompanhar o mapa força do 18º Batalhão Bombeiro Militar 18º BBM do Corpo de Bombeiros Militar do Estado de Goiás - CBMGO"
+            content="Aplicação para gerar e acompanhar o resumo diário do serviço de dia do 18º Batalhão Bombeiro Militar 18º BBM do Corpo de Bombeiros Militar do Estado de Goiás - CBMGO"
           />
           <link rel="icon" href="/favicon.ico" />
         </Head>

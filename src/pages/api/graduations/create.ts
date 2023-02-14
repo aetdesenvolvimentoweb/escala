@@ -28,7 +28,9 @@ const handler = async (
         const graduationAlreadyExist = await listGraduationByName(name);
 
         if (graduationAlreadyExist) {
-          throw new Error("Já existe uma graduação cadastrada com esse nome.");
+          throw new Error(
+            "Já existe posto/graduação cadastrado com esse nome."
+          );
         }
 
         const graduations = await listAllGraduations();

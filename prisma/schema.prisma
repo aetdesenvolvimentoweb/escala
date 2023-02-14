@@ -7,14 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  userName String @unique
-  password String
-
-  @@map("users")
-}
-
 model Graduation {
   id    String @id @default(auto()) @map("_id") @db.ObjectId
   order Int
@@ -36,8 +28,9 @@ model Military {
   name         String
   active       Boolean    @default(true)
 
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   militaryInGarrison MilitaryInGarrison[] @relation(name: "militaryInGarrison")
   standbyOfficer     ForceMap[]           @relation(name: "standbyOfficer")
   adjunct            ForceMap[]           @relation(name: "adjunct")
@@ -48,12 +41,14 @@ model Military {
 }
 
 model Vehicle {
-  id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  name      String     @unique
-  active    Boolean    @default(true)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  garrison  Garrison[]
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  name   String  @unique
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  garrison Garrison[]
 
   @@map("vehicles")
 }
@@ -64,8 +59,9 @@ model MilitaryInGarrison {
   militaryId String   @db.ObjectId
   scaleType  String
 
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   garrisonIds String[]   @db.ObjectId
   garrisons   Garrison[] @relation(fields: [garrisonIds], references: [id])
 
@@ -79,8 +75,9 @@ model Garrison {
   militaryInGarrisonIds String[]             @db.ObjectId
   militaryInGarrison    MilitaryInGarrison[] @relation(fields: [militaryInGarrisonIds], references: [id])
 
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   forceMapIds String[]   @db.ObjectId
   forceMap    ForceMap[] @relation(fields: [forceMapIds], references: [id])
 
@@ -96,8 +93,9 @@ model ServiceExchange {
   initial      DateTime
   final        DateTime
 
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   forceMapIds String[]   @db.ObjectId
   forceMap    ForceMap[] @relation(fields: [forceMapIds], references: [id])
 

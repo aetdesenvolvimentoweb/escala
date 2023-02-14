@@ -16,7 +16,7 @@ const handler = async (
         const id = req.query.id as string;
 
         if (!id) {
-          throw new Error("Identificador da graduação não encontrado.");
+          throw new Error("Identificador de posto/graduação não encontrado.");
         }
 
         await deleteGraduation(id);

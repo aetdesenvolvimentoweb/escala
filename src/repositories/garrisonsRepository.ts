@@ -89,28 +89,3 @@ export const deleteAllGarrisons = async (): Promise<void> => {
 
   await disconnectDB();
 };
-
-/* export const updateGarrison = async (id: string, data: IGarrisonCreateDTO) => {
-  await connectDB();
-
-  await prisma.garrison.update({
-    where: {
-      id,
-    },
-    data,
-  });
-
-  await disconnectDB();
-};
-
-export const deleteGarrison = async (id: string): Promise<void> => {
-  await connectDB();
-
-  await prisma.garrison.delete({
-    where: {
-      id,
-    },
-  });
-
-  await disconnectDB();
-}; */

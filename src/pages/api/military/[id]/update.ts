@@ -17,7 +17,7 @@ const handler = async (
         const id = req.query.id as string;
 
         if (!id) {
-          throw new Error("Identificador do militar não encontrado.");
+          throw new Error("Identificador do(a) militar não encontrado.");
         }
 
         if (!graduationId || !rg || !name) {

@@ -28,7 +28,7 @@ const handler = async (
         const militaryAlreadyExist = await listMilitaryByRG(rg);
 
         if (militaryAlreadyExist) {
-          throw new Error("Já existe um militar cadastrado com esse RG.");
+          throw new Error("Já existe militar cadastrado(a) com esse RG.");
         }
 
         const graduation = await listGraduationById(graduationId);

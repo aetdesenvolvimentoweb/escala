@@ -1,17 +1,10 @@
 import { IForceMapCreateDTO, IForceMapDTO } from "@/dtos/IForceMapDTO";
 import {
   IGarrisonCreateDTO,
-  IGarrisonDTO,
   IMilitaryInGarrisonCreateDTO,
 } from "@/dtos/IGarrisonDTO";
-import { IServiceExchangeCreateDTO } from "@/dtos/IServiceExchange";
 import { createForceMap } from "@/repositories/forceMapRepository";
-import {
-  createGarrison,
-  listGarrisonByVehicleAndMilitary,
-} from "@/repositories/garrisonsRepository";
-import { createMilitaryInGarrison } from "@/repositories/militaryInGarrisonRepository";
-import { createServiceExchange } from "@/repositories/serviceExchangesRepository";
+import { listGarrisonByVehicleAndMilitary } from "@/repositories/garrisonsRepository";
 import { NextApiRequest, NextApiResponse } from "next";
 
 interface IResponseData {
@@ -84,7 +77,7 @@ const handler = async (
 
         const forceMap = await createForceMap(data);
 
-        res.status(201).json({ success: true /* forceMap */ });
+        res.status(201).json({ success: true, forceMap });
       } catch (err: any) {
         res
           .status(400)
