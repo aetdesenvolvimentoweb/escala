@@ -43,6 +43,7 @@ const Vehicles = () => {
   const handleCancel = () => {
     setId("");
     setName("");
+    setStatus("");
     /* setPage(1); */
     setAdding(false);
     setEditing(false);
@@ -53,6 +54,7 @@ const Vehicles = () => {
     setEditing(true);
     setId(vehicle.id);
     setName(vehicle.name);
+    setStatus(vehicle.status);
   };
 
   /* const handleDeleting = (id: string) => {
