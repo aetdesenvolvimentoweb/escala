@@ -13,7 +13,7 @@ const MainLayout = ({ children, title }: IMainLayoutProps) => {
 
   return (
     <div id="mainContainer" className="bg-gray-200">
-      <div className="flex flex-col max-w-xs min-h-screen mx-auto">
+      <div className="flex flex-col w-full max-w-xl min-h-screen mx-auto">
         <Head>
           <title>Resumo Diário - 18º BBM</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
