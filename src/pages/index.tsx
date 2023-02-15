@@ -188,33 +188,35 @@ const Home = () => {
               ))}
           </div>
 
-          <div className="mt-1">
-            <span className="font-bold">Trocas de Serviço:</span>
-            {serviceExchanges &&
-              serviceExchanges.map((se) => (
-                <div
-                  key={se.id}
-                  className="flex flex-col p-1 mb-2 border border-gray-800 rounded-md"
-                >
-                  <div>
-                    <span className="pr-1 font-bold">Substituído:</span>
-                    <span>{`${se.replaced?.graduation?.name} ${se.replaced?.rg} ${se.replaced?.name}`}</span>
+          {serviceExchanges && serviceExchanges.length > 0 && (
+            <div className="mt-1">
+              <span className="font-bold">Trocas de Serviço:</span>
+              {serviceExchanges &&
+                serviceExchanges.map((se) => (
+                  <div
+                    key={se.id}
+                    className="flex flex-col p-1 mb-2 border border-gray-800 rounded-md"
+                  >
+                    <div>
+                      <span className="pr-1 font-bold">Substituído:</span>
+                      <span>{`${se.replaced?.graduation?.name} ${se.replaced?.rg} ${se.replaced?.name}`}</span>
+                    </div>
+                    <div>
+                      <span className="pr-1 font-bold">Substituto:</span>
+                      <span>{`${se.substitute?.graduation?.name} ${se.substitute?.rg} ${se.substitute?.name}`}</span>
+                    </div>
+                    <div>
+                      <span className="pr-1 font-bold">Início:</span>
+                      <span>{new Date(se.initial).toLocaleString()}</span>
+                    </div>
+                    <div>
+                      <span className="pr-1 font-bold">Final:</span>
+                      <span>{new Date(se.final).toLocaleString()}</span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="pr-1 font-bold">Substituto:</span>
-                    <span>{`${se.substitute?.graduation?.name} ${se.substitute?.rg} ${se.substitute?.name}`}</span>
-                  </div>
-                  <div>
-                    <span className="pr-1 font-bold">Início:</span>
-                    <span>{new Date(se.initial).toLocaleString()}</span>
-                  </div>
-                  <div>
-                    <span className="pr-1 font-bold">Final:</span>
-                    <span>{new Date(se.final).toLocaleString()}</span>
-                  </div>
-                </div>
-              ))}
-          </div>
+                ))}
+            </div>
+          )}
         </div>
       )}
       {/* final do resumo */}
