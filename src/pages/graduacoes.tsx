@@ -280,13 +280,13 @@ const Graduations = () => {
       >
         <div
           id="cabecalho"
-          className="bg-gray-400 border border-gray-800 rounded-t-md"
+          className="text-white bg-red-800 border border-gray-800 rounded-t-md"
         >
           <div id="linha" className="flex font-bold uppercase">
-            <div className="w-1/6 px-2 py-1 text-center border-r border-r-gray-800">
+            <div className="w-1/6 px-2 py-1 text-center border-r border-r-transparent">
               #
             </div>
-            <div className="w-3/6 px-2 py-1 text-center border-r border-r-gray-800">
+            <div className="w-3/6 px-2 py-1 text-center border-r border-r-transparent">
               Graduação
             </div>
             <div className="w-2/6 px-2 py-1"></div>

@@ -16,10 +16,11 @@ import { toast } from "react-toastify";
 const Vehicles = () => {
   const [id, setId] = useState<string>("");
   const [name, setName] = useState<string>("");
+  const [status, setStatus] = useState<string>("");
   const [vehicles, setVehicles] = useState<IVehicleDTO[]>([] as IVehicleDTO[]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [searched, setSearched] = useState<string>("");
-  const [page, setPage] = useState<number>(1);
+  /* const [searched, setSearched] = useState<string>("");
+  const [page, setPage] = useState<number>(1); */
   const [adding, setAdding] = useState<boolean>(false);
   const [editing, setEditing] = useState<boolean>(false);
   const [deleting, setDeleting] = useState<boolean>(false);
@@ -42,7 +43,7 @@ const Vehicles = () => {
   const handleCancel = () => {
     setId("");
     setName("");
-    setPage(1);
+    /* setPage(1); */
     setAdding(false);
     setEditing(false);
     setDeleting(false);
@@ -54,20 +55,20 @@ const Vehicles = () => {
     setName(vehicle.name);
   };
 
-  const handleDeleting = (id: string) => {
+  /* const handleDeleting = (id: string) => {
     setId(id);
     setDeleting(true);
-  };
+  }; */
 
-  const handleChangePage = (event: ChangeEvent<HTMLInputElement>) => {
+  /* const handleChangePage = (event: ChangeEvent<HTMLInputElement>) => {
     if (isNaN(parseInt(event.target.value))) {
       setPage(1);
     } else {
       setPage(parseInt(event.target.value));
     }
-  };
+  }; */
 
-  const handleDeleteVehicle = async () => {
+  /* const handleDeleteVehicle = async () => {
     setLoading(true);
 
     const response = await fetch(`/api/vehicles/${id}/delete`, {
@@ -83,7 +84,7 @@ const Vehicles = () => {
     } else {
       toast.error(response.error);
     }
-  };
+  }; */
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -91,10 +92,18 @@ const Vehicles = () => {
     if (!name) {
       toast.error("Campo Nome precisa ser preenchido.");
       document.getElementById("name")?.focus();
+      return;
     }
 
     if (editing && !id) {
       toast.error("Identificador da viatura não encontrado.");
+      return;
+    }
+
+    if (editing && !status) {
+      toast.error("Campo Situação precisa ser preenchido.");
+      document.getElementById("status")?.focus();
+      return;
     }
 
     setLoading(true);
@@ -117,7 +126,7 @@ const Vehicles = () => {
     if (editing) {
       const response = await fetch(`/api/vehicles/${id}/update`, {
         method: "PUT",
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, status }),
       }).then(async (res) => await res.json());
 
       if (response.error) {
@@ -126,7 +135,7 @@ const Vehicles = () => {
         toast.success("Viatura atualizada com sucesso.");
         const vehiclesUpdated = vehicles.map((v) => {
           if (v.id === id) {
-            return { id, name };
+            return { id, name, status };
           }
           return v;
         });
@@ -151,9 +160,9 @@ const Vehicles = () => {
             className="px-4 py-1 font-bold text-white bg-green-600 rounded-md"
             onClick={() => setAdding(true)}
           >
-            Novo
+            Nova
           </button>
-          <div className="flex items-center p-1 border border-gray-800 rounded-md">
+          {/* <div className="flex items-center p-1 border border-gray-800 rounded-md">
             <input
               className="w-40 px-2 focus:outline-none"
               type="text"
@@ -167,11 +176,11 @@ const Vehicles = () => {
                 <FiXCircle size={20} />
               </button>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
-      <div
+      {/* <div
         className={`${deleting ? "flex" : "hidden"} flex-col items-center mt-2`}
       >
         <div className="mb-1">
@@ -191,7 +200,7 @@ const Vehicles = () => {
             Sim
           </button>
         </div>
-      </div>
+      </div> */}
 
       <div
         className={`${
@@ -205,6 +214,7 @@ const Vehicles = () => {
           <div className="text-center">
             <h2 className="font-bold">Cadastrar Viatura</h2>
           </div>
+
           <div className="flex items-center mt-4">
             <div className="pr-1">
               <label htmlFor="name">Nome:</label>
@@ -221,6 +231,28 @@ const Vehicles = () => {
               />
             </div>
           </div>
+
+          {editing && (
+            <div className="flex items-center mt-4">
+              <div className="pr-1">
+                <label htmlFor="status">Situação:</label>
+              </div>
+              <div className="flex-1">
+                <select
+                  id="status"
+                  className="w-full p-1 bg-white border border-gray-800 rounded-md focus:outline-none"
+                  onChange={(event: ChangeEvent<HTMLSelectElement>) =>
+                    setStatus(event.target.value)
+                  }
+                  value={status}
+                >
+                  <option value="">Selecione</option>
+                  <option value="Ativa">Ativa</option>
+                  <option value="Baixada">Baixada</option>
+                </select>
+              </div>
+            </div>
+          )}
 
           <div className="flex items-center mt-6">
             <button
@@ -248,11 +280,14 @@ const Vehicles = () => {
       >
         <div
           id="cabecalho"
-          className="bg-gray-400 border border-gray-800 rounded-t-md"
+          className="text-white bg-red-800 border border-gray-800 rounded-t-md"
         >
           <div id="linha" className="flex font-bold uppercase">
-            <div className="w-2/3 px-2 py-1 text-center border-r border-r-gray-800">
+            <div className="w-1/3 px-2 py-1 text-center border-r border-r-transparent">
               Viatura
+            </div>
+            <div className="w-1/3 px-2 py-1 text-center border-r border-r-transparent">
+              Situação
             </div>
             <div className="w-1/3 px-2 py-1"></div>
           </div>
@@ -267,16 +302,24 @@ const Vehicles = () => {
                 key={v.id}
                 className="flex border-b border-gray-800 last:rounded-b-md"
               >
-                <div className="w-2/3 px-2 py-1 border-r border-r-gray-800">
+                <div className="w-1/3 px-2 py-1 border-r border-r-gray-800">
                   {v.name}
                 </div>
+                <div className="w-1/3 px-2 py-1 border-r border-r-gray-800">
+                  {v.status}
+                </div>
                 <div className="flex items-center justify-center w-1/3 px-2 py-1">
-                  <button className="pr-1" onClick={() => handleEdit(v)}>
+                  <button
+                    className="pr-1"
+                    title="editar viatura"
+                    aria-label="editar viatura"
+                    onClick={() => handleEdit(v)}
+                  >
                     <FiEdit2 size={20} />
                   </button>
-                  <button onClick={() => handleDeleting(v.id)}>
+                  {/* <button onClick={() => handleDeleting(v.id)}>
                     <FiTrash2 size={20} />
-                  </button>
+                  </button> */}
                 </div>
               </div>
             ))
@@ -290,7 +333,7 @@ const Vehicles = () => {
         </div>
       </div>
 
-      <div
+      {/* <div
         id="paginacao"
         className={`${
           adding || editing || deleting ? "hidden" : "flex"
@@ -316,7 +359,7 @@ const Vehicles = () => {
         <button className="pl-2">
           <FiChevronsRight size={20} />
         </button>
-      </div>
+      </div> */}
     </MainLayout>
   );
 };

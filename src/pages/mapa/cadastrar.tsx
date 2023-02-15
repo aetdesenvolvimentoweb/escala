@@ -514,20 +514,24 @@ const Garrison = () => {
                 value={vehicleSelected}
               >
                 <option value="">Selecione</option>
-                {vehicles.map((v) => (
-                  <option
-                    disabled={
-                      vehicleInGarrison === v.id ||
-                      (garrisons &&
-                        garrisons.filter((g) => g.vehicleId === v.id).length >
-                          0)
-                    }
-                    key={v.id}
-                    value={v.id}
-                  >
-                    {v.name}{" "}
-                  </option>
-                ))}
+                {vehicles.map((v) => {
+                  if (v.status === "Ativa") {
+                    return (
+                      <option
+                        disabled={
+                          vehicleInGarrison === v.id ||
+                          (garrisons &&
+                            garrisons.filter((g) => g.vehicleId === v.id)
+                              .length > 0)
+                        }
+                        key={v.id}
+                        value={v.id}
+                      >
+                        {v.name}{" "}
+                      </option>
+                    );
+                  }
+                })}
               </select>
             </div>
             <div>
@@ -611,7 +615,7 @@ const Garrison = () => {
           </div>
 
           {(militaryInGarrison.length > 0 || vehicleInGarrison) && (
-            <div className="p-2 mt-2 text-white bg-red-600 rounded-md">
+            <div className="p-2 mt-2 border border-gray-800 rounded-md">
               <div>
                 {vehicles &&
                   vehicleInGarrison &&
@@ -641,12 +645,13 @@ const Garrison = () => {
                         return (
                           <div className="flex pt-1 pl-2" key={m.id}>
                             <span className="pr-1">
-                              {`${m.graduation?.name} ${m.rg} ${m.name} ${
-                                mig.scaleType !== "Ordinaria"
-                                  ? `(${mig.scaleType})`
-                                  : ""
-                              }`}
+                              {`${m.graduation?.name} ${m.rg} ${m.name}`}
                             </span>
+                            <strong className="text-red-600">
+                              {mig.scaleType !== "Ordinaria"
+                                ? `(${mig.scaleType})`
+                                : ""}
+                            </strong>
                             <button
                               className="flex text-white"
                               type="button"

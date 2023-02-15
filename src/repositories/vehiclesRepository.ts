@@ -64,13 +64,18 @@ export const listAllVehicles = async (): Promise<IVehicleDTO[]> => {
 
 export const updateVehicle = async (id: string, data: IVehicleCreateDTO) => {
   await connectDB();
+  console.log("repositório", data);
 
-  await prisma.vehicle.update({
-    where: {
-      id,
-    },
-    data,
-  });
+  try {
+    await prisma.vehicle.update({
+      where: {
+        id,
+      },
+      data,
+    });
+  } catch (error) {
+    console.log(error);
+  }
 
   await disconnectDB();
 };

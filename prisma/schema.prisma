@@ -43,6 +43,7 @@ model Military {
 model Vehicle {
   id     String  @id @default(auto()) @map("_id") @db.ObjectId
   name   String  @unique
+  status String  @default("Ativa")
   active Boolean @default(true)
 
   createdAt DateTime @default(now())

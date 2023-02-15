@@ -1,5 +1,6 @@
 import Head from "next/head";
 import Image from "next/image";
+import Link from "next/link";
 import { ReactNode } from "react";
 
 interface IMainLayoutProps {
@@ -25,12 +26,14 @@ const MainLayout = ({ children, title }: IMainLayoutProps) => {
         <header className="flex items-center justify-between text-white bg-red-800">
           <div className="p-2 bg-white border-l border-l-red-800">
             <div className="relative w-24 h-16">
-              <Image
-                src={"/images/fenix.jpeg"}
-                fill
-                sizes="auto, auto"
-                alt="logomarca bombeiros"
-              />
+              <Link href={"/"} passHref>
+                <Image
+                  src={"/images/fenix.jpeg"}
+                  fill
+                  sizes="auto, auto"
+                  alt="logomarca bombeiros"
+                />
+              </Link>
             </div>
           </div>
           <div className="flex flex-col items-center justify-center w-full text-sm">

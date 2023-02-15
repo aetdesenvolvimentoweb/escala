@@ -4,15 +4,18 @@ import { IForceMapDTO } from "@/dtos/IForceMapDTO";
 import { IGarrisonDTO, IMilitaryInGarrisonDTO } from "@/dtos/IGarrisonDTO";
 import { IMilitaryDTO } from "@/dtos/IMilitaryDTO";
 import { IServiceExchangeDTO } from "@/dtos/IServiceExchange";
+import { IVehicleDTO } from "@/dtos/IVehicleDTO";
 import { addDays } from "date-fns";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { FiFile } from "react-icons/fi";
+import { FiFile, FiTruck } from "react-icons/fi";
 import { toast } from "react-toastify";
 
 const Home = () => {
   const router = useRouter();
 
+  const [vehicles, setVehicles] = useState<IVehicleDTO[]>([] as IVehicleDTO[]);
   const [forceMap, setForceMap] = useState<IForceMapDTO | null>(null);
   const [initialService, setInitialService] = useState<Date>();
   const [finalService, setFinalService] = useState<Date>();
@@ -37,12 +40,18 @@ const Home = () => {
         method: "GET",
       }).then(async (res) => await res.json());
 
-      console.log(responseForceMaps.forceMap);
+      const responseVehicles = await fetch("/api/vehicles/listAll", {
+        method: "GET",
+      }).then(async (res) => await res.json());
 
       setLoading(false);
 
       if (responseForceMaps.forceMap) {
         setForceMap(responseForceMaps.forceMap[0]);
+      }
+
+      if (responseVehicles.vehicles) {
+        setVehicles(responseVehicles.vehicles);
       }
     };
 
@@ -89,20 +98,22 @@ const Home = () => {
     <MainLayout title="página inicial">
       {loading && <Loading />}
       <div>
-        <div className={"flex items-center justify-between"}>
+        <div className={"flex items-center"}>
           <button
-            className="p-2 font-bold text-white bg-green-600 rounded-md outline-none"
+            className="px-4 py-1 mr-2 font-bold text-white bg-green-600 rounded-md"
             aria-label="cadastrar novo resumo"
             title="cadastrar novo resumo"
             onClick={handleNewForceMap}
           >
-            <div className="flex items-center justify-center">
-              <div className="pr-2">
-                <FiFile size={20} />
-              </div>
-              <span className="text-sm">novo resumo</span>
-            </div>
+            Novo Resumo
           </button>
+          <Link
+            className="px-4 py-1 font-bold text-white bg-green-600 rounded-md"
+            href={"/viaturas"}
+            passHref
+          >
+            Viaturas
+          </Link>
         </div>
       </div>
 
@@ -123,6 +134,38 @@ const Home = () => {
           <div className="mt-1">
             <span className="pr-1 font-bold">Adjunto:</span>
             <span>{`${adjunct?.graduation?.name} ${adjunct?.rg} ${adjunct?.name}`}</span>
+          </div>
+
+          <div className="mt-1">
+            <span className="font-bold">Viaturas Ativas:</span>
+            <div className="p-2 mb-2 border border-gray-800 rounded-md">
+              {vehicles &&
+                vehicles.map((v) => {
+                  if (v.status === "Ativa") {
+                    return (
+                      <span key={v.id} className="block font-bold">
+                        {v.name}
+                      </span>
+                    );
+                  }
+                })}
+            </div>
+          </div>
+
+          <div className="mt-1">
+            <span className="font-bold">Viaturas Baixadas:</span>
+            <div className="p-2 mb-2 border border-gray-800 rounded-md">
+              {vehicles &&
+                vehicles.map((v) => {
+                  if (v.status === "Baixada") {
+                    return (
+                      <span key={v.id} className="block font-bold">
+                        {v.name}
+                      </span>
+                    );
+                  }
+                })}
+            </div>
           </div>
 
           <div className="mt-1">
