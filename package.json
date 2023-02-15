@@ -1,7 +1,12 @@
 {
-  "name": "escala",
-  "version": "0.1.0",
+  "name": "resumo-diario-app",
+  "version": "1.0.0",
   "private": true,
+  "author": {
+    "name": "André David dos Santos",
+    "email": "aetdesenvolvimentoweb@gmail.com"
+  },
+  "homepage": "https://18bbm-resumo.vercel.app",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

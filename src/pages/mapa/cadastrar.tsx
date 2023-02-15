@@ -339,7 +339,7 @@ const Garrison = () => {
   };
 
   return (
-    <MainLayout title={new Date(Date.now()).toLocaleDateString()}>
+    <MainLayout title={"Cadastrar Resumo"}>
       {/* loading */}
       {loading && <Loading />}
 

@@ -95,7 +95,7 @@ const Home = () => {
   };
 
   return (
-    <MainLayout title="página inicial">
+    <MainLayout title="Página Inicial">
       {loading && <Loading />}
       <div>
         <div className={"flex items-center"}>
@@ -109,6 +109,8 @@ const Home = () => {
           </button>
           <Link
             className="px-4 py-1 font-bold text-white bg-green-600 rounded-md"
+            aria-label="situação de viaturas"
+            title="situação de viaturas"
             href={"/viaturas"}
             passHref
           >
@@ -138,33 +140,31 @@ const Home = () => {
 
           <div className="mt-1">
             <span className="font-bold">Viaturas Ativas:</span>
-            <div className="p-2 mb-2 border border-gray-800 rounded-md">
-              {vehicles &&
-                vehicles.map((v) => {
-                  if (v.status === "Ativa") {
-                    return (
-                      <span key={v.id} className="block font-bold">
-                        {v.name}
-                      </span>
-                    );
-                  }
-                })}
+            <div className="flex p-2 mb-2 border border-gray-800 rounded-md">
+              <p className="text-justify">
+                {vehicles &&
+                  vehicles
+                    .filter((v) => v.status === "Ativa")
+                    .map((v, index) => {
+                      if (v.status === "Ativa") {
+                        return `${index === 0 ? "" : ", "}${v.name}`;
+                      }
+                    })}
+              </p>
             </div>
           </div>
 
           <div className="mt-1">
             <span className="font-bold">Viaturas Baixadas:</span>
             <div className="p-2 mb-2 border border-gray-800 rounded-md">
-              {vehicles &&
-                vehicles.map((v) => {
-                  if (v.status === "Baixada") {
-                    return (
-                      <span key={v.id} className="block font-bold">
-                        {v.name}
-                      </span>
-                    );
-                  }
-                })}
+              <p className="text-justify">
+                {vehicles &&
+                  vehicles
+                    .filter((v) => v.status === "Baixada")
+                    .map((v, index) => {
+                      return `${index === 0 ? "" : ", "} ${v.name}`;
+                    })}
+              </p>
             </div>
           </div>
 
