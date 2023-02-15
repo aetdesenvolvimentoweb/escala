@@ -181,7 +181,9 @@ const Home = () => {
                     g.militaryInGarrison?.map((m: IMilitaryInGarrisonDTO) => (
                       <div key={m.id}>
                         <span className="pl-2 pr-1">{`${m.military?.graduation?.name} ${m.military?.rg} ${m.military?.name}`}</span>
-                        <strong className="text-red-700">{`(${m.scaleType})`}</strong>
+                        <strong className="text-red-700">{`(${
+                          m.scaleType !== "Ordinaria" ? m.scaleType : ""
+                        })`}</strong>
                       </div>
                     ))}
                 </div>
