@@ -129,7 +129,7 @@ const Home = () => {
           </div>
 
           <div className="mt-2">
-            <span className="pr-1 mt-2 font-bold">Oficial de dia:</span>
+            <span className="pr-1 mt-2 font-bold">Oficial de Sobreaviso:</span>
             <span>{`${standbyOfficer?.graduation?.name} ${standbyOfficer?.rg} ${standbyOfficer?.name}`}</span>
           </div>
 
