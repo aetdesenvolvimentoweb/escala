@@ -95,14 +95,14 @@ const Vehicles = () => {
       return;
     }
 
-    if (editing && !id) {
-      toast.error("Identificador da viatura não encontrado.");
+    if (!status) {
+      toast.error("Campo Situação precisa ser preenchido.");
+      document.getElementById("status")?.focus();
       return;
     }
 
-    if (editing && !status) {
-      toast.error("Campo Situação precisa ser preenchido.");
-      document.getElementById("status")?.focus();
+    if (editing && !id) {
+      toast.error("Identificador da viatura não encontrado.");
       return;
     }
 
@@ -111,7 +111,7 @@ const Vehicles = () => {
     if (adding) {
       const response = await fetch("/api/vehicles/create", {
         method: "POST",
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, status }),
       }).then(async (res) => await res.json());
 
       if (response.error) {
@@ -232,27 +232,25 @@ const Vehicles = () => {
             </div>
           </div>
 
-          {editing && (
-            <div className="flex items-center mt-4">
-              <div className="pr-1">
-                <label htmlFor="status">Situação:</label>
-              </div>
-              <div className="flex-1">
-                <select
-                  id="status"
-                  className="w-full p-1 bg-white border border-gray-800 rounded-md focus:outline-none"
-                  onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-                    setStatus(event.target.value)
-                  }
-                  value={status}
-                >
-                  <option value="">Selecione</option>
-                  <option value="Ativa">Ativa</option>
-                  <option value="Baixada">Baixada</option>
-                </select>
-              </div>
+          <div className="flex items-center mt-4">
+            <div className="pr-1">
+              <label htmlFor="status">Situação:</label>
             </div>
-          )}
+            <div className="flex-1">
+              <select
+                id="status"
+                className="w-full p-1 bg-white border border-gray-800 rounded-md focus:outline-none"
+                onChange={(event: ChangeEvent<HTMLSelectElement>) =>
+                  setStatus(event.target.value)
+                }
+                value={status}
+              >
+                <option value="">Selecione</option>
+                <option value="Ativa">Ativa</option>
+                <option value="Baixada">Baixada</option>
+              </select>
+            </div>
+          </div>
 
           <div className="flex items-center mt-6">
             <button

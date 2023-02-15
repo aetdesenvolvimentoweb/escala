@@ -26,7 +26,6 @@ model Military {
   graduationId String     @db.ObjectId
   rg           Int        @unique
   name         String
-  active       Boolean    @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -41,10 +40,9 @@ model Military {
 }
 
 model Vehicle {
-  id     String  @id @default(auto()) @map("_id") @db.ObjectId
-  name   String  @unique
-  status String  @default("Ativa")
-  active Boolean @default(true)
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  name   String @unique
+  status String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

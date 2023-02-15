@@ -37,7 +37,7 @@ export const listVehicleByName = async (
 ): Promise<IVehicleDTO | null> => {
   await connectDB();
 
-  const vehicle = await prisma.vehicle.findUnique({
+  const vehicle = await prisma.vehicle.findFirst({
     where: {
       name,
     },
@@ -66,16 +66,12 @@ export const updateVehicle = async (id: string, data: IVehicleCreateDTO) => {
   await connectDB();
   console.log("repositório", data);
 
-  try {
-    await prisma.vehicle.update({
-      where: {
-        id,
-      },
-      data,
-    });
-  } catch (error) {
-    console.log(error);
-  }
+  await prisma.vehicle.update({
+    where: {
+      id,
+    },
+    data,
+  });
 
   await disconnectDB();
 };

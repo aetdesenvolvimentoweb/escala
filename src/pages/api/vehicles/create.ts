@@ -18,9 +18,9 @@ const handler = async (
   switch (req.method) {
     case "POST":
       try {
-        const { name } = JSON.parse(req.body);
+        const { name, status } = JSON.parse(req.body);
 
-        if (!name) {
+        if (!name || !status) {
           throw new Error("Campos obrigatórios não foram preenchidos.");
         }
 
@@ -30,7 +30,7 @@ const handler = async (
           throw new Error("Já existe uma viatura cadastrada com esse nome.");
         }
 
-        const vehicle = await createVehicle({ name });
+        const vehicle = await createVehicle({ name, status });
 
         if (!vehicle) {
           throw new Error("Erro ao cadastrar viatura.");
